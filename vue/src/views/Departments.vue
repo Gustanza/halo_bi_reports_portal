@@ -1,32 +1,27 @@
-<DashLayout>
-
-  <div>
-    <main>
-      <div class="grid">
-        <div
-          v-for="card in cards"
-          :key="card.dept"
-          class="card"
-          @click="openDept(card)"
-        >
-          <div class="card-header">
-            <i :data-lucide="card.icon" class="icon"></i>
-            <div class="dot"></div>
+<template>
+  <DashLayout>
+    <div>
+      <main>
+        <div class="grid">
+          <div v-for="card in cards" :key="card.dept" class="card" @click="openDept(card)">
+            <div class="card-header">
+              <i :data-lucide="card.icon" class="icon"></i>
+              <div class="dot"></div>
+            </div>
+            <h2>{{ card.title }}</h2>
+            <div class="divider"></div>
+            <div class="cta">Open dashboard →</div>
           </div>
-          <h2>{{ card.title }}</h2>
-          <div class="divider"></div>
-          <div class="cta">Open dashboard →</div>
         </div>
-      </div>
-    </main>
-  </div>
-
-</DashLayout>
+      </main>
+    </div>
+  </DashLayout>
+</template>
 
 <script setup>
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import DashLayout from "./components/DashLayout.vue";
+import DashLayout from "../components/DashLayout.vue";
 
 const router = useRouter();
 
