@@ -6,7 +6,7 @@ const store = createStore({
             data: {
                 fullName: "Gustanza Sam"
             },
-            clearanceLevel: 5,
+            clearanceLevel: 9,
             token: 1
         }
     },
