@@ -19,7 +19,7 @@
               <tr>
                 <th>Full Name</th>
                 <th>Email</th>
-                <th>Phone Number</th>
+                <th>Role</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -30,7 +30,7 @@
                   <a :href="`mailto:${user.email}`" class="link">{{ user.email }}</a>
                 </td>
                 <td>
-                  <a :href="`tel:${user.password}`" class="link">{{ user.password }}</a>
+                  {{ user.role === 3 ?"SUPER ADMIN": user.role === 2 ? "ADMIN" : "USER" }}
                 </td>
                 <td>
                   <div class="action-buttons">
@@ -100,12 +100,12 @@
             </select>
             <small class="form-hint">Choose an appropriate role for the user</small>
           </div>
-          <div class="form-group">
+          <div v-if="!isEditMode" class="form-group">
             <label for="password">Password *</label>
             <input
-              id="password"
+              id="created_at"
               v-model="formData.password"
-              type="text"
+              type="password"
               placeholder="Enter password"
               required
             />
@@ -160,27 +160,7 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-// Initial users data
-const initialUsers = [
-  {
-    name: "Gustanza Sam",
-    email: "gustanza.sam@halotel.co.tz",
-    password: "+255 123 456 789",
-  },
-  {
-    name: "John Doe",
-    email: "john.doe@halotel.co.tz",
-    password: "+255 987 654 321",
-  },
-  {
-    name: "Jane Smith",
-    email: "jane.smith@halotel.co.tz",
-    password: "+255 111 222 333",
-  },
-];
-
-// Make users reactive
-const users = ref([...initialUsers]);
+const users = ref([]);
 
 const pageSubtitle = computed(() => `View and manage all users in the system`);
 
@@ -191,8 +171,9 @@ const editingIndex = ref(null);
 const formData = ref({
   name: "",
   email: "",
-  password: "",
+  created_at: "",
   role: 0,
+  password: "",
 });
 
 // Delete modal state
@@ -208,15 +189,10 @@ const openModal = () => {
   formData.value = {
     name: "",
     email: "",
-    password: "",
+    created_at: "",
     role: 0,
+    password: "",
   };
-  // Update icons after modal opens
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
 };
 
 const editUser = (index) => {
@@ -224,18 +200,12 @@ const editUser = (index) => {
   editingIndex.value = index;
   const user = users.value[index];
   formData.value = {
+    id: user.id,
     name: user.name || "",
     email: user.email || "",
-    password: user.password || "",
     role: user.role || 0,
   };
   isModalOpen.value = true;
-  // Update icons after modal opens
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
 };
 
 const closeModal = () => {
@@ -245,33 +215,35 @@ const closeModal = () => {
   formData.value = {
     name: "",
     email: "",
-    password: "",
+    created_at: "",
     role: 0,
+    password: "",
   };
 };
 
 const handleSubmit = () => {
-  store.dispatch("register", formData.value).then((result) => {
-    if (result && result.user) {
+  if (isEditMode) {
+    store.dispatch('updateUser', formData.value).then((response)=>{
+    console.log("This is a good one", response.data);
+  })
+  }else{
+    store.dispatch("register", formData.value).then((response) => {
+    if (response && response.user) {
       toast("Success");
       closeModal();
     }else{
-      toast(`${result}`);
+      toast(`${response}`);
     }
     
   });
+  }
+  
 };
 
 const confirmDelete = (index) => {
   deletingIndex.value = index;
   userToDelete.value = users.value[index];
   isDeleteModalOpen.value = true;
-  // Update icons after modal opens
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
 };
 
 const closeDeleteModal = () => {
@@ -285,35 +257,17 @@ const handleDelete = () => {
     users.value.splice(deletingIndex.value, 1);
   }
   closeDeleteModal();
-
-  // Re-initialize icons after delete
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
 };
 
 onMounted(() => {
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
+  store.dispatch('getUsers').then((response)=>{
+    if (response && response.data) {
+      users.value = response.data;
+      console.log("Hooray: ", response.data);
     }
   });
 });
 
-// Watch for icon updates when users change
-watch(
-  users,
-  () => {
-    nextTick(() => {
-      if (window.lucide && typeof window.lucide.createIcons === "function") {
-        window.lucide.createIcons();
-      }
-    });
-  },
-  { deep: true }
-);
 </script>
 
 <style scoped>

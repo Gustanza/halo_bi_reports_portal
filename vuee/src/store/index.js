@@ -27,6 +27,22 @@ const store = createStore({
                 }).catch((error) => {
                     return null;
                 });
+        },
+        getUsers({ commit }) {
+            return axiosClient.get('/users').then((response) => {
+                return response.data;
+            }).catch((error) => {
+                return error;
+            });
+        },
+        updateUser({ commit }, user) {
+            return axiosClient.put(`/users/${user.id}`).then((response) => {
+                console.log("Dat comes", response.data)
+                return response.data;
+            }).catch((error) => {
+                console.log("Dat comes", error)
+                return error;
+            });
         }
     },
     mutations: {
