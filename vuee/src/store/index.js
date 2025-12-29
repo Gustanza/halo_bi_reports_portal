@@ -4,27 +4,39 @@ import axiosClient from "../axiosClient";
 const store = createStore({
     state: {
         user: {
-            data: {
-                fullName: "Gustanza Sam"
-            },
-            clearanceLevel: 9,
-            token: 1
+            data: {},
+            role: sessionStorage.getItem('role'),
+            token: sessionStorage.getItem('token')
         }
     },
     getters: {},
     actions: {
         register({ commit }, user) {
-            try {
-                user.passwordConfrimation = user.password;
-                const respo = axiosClient.post('/register', user);
-                console.log("Came is Good");
-                return respo;
-            } catch (error) {
-                return console.log("Error is:", user);
-            }
+            return axiosClient.post('/register', user)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return null;
+                });
+        },
+        login({ commit }, user) {
+            return axiosClient.post('/login', user)
+                .then((response) => {
+                    commit("setUser", response.data);
+                    return response.data;
+                }).catch((error) => {
+                    return null;
+                });
         }
     },
-    mutations: {},
+    mutations: {
+        setUser: (state, data) => {
+            state.user.data = data.user;
+            state.user.token = data.token;
+            sessionStorage.setItem('role', data.role)
+            sessionStorage.setItem("token", data.token);
+        }
+    },
     modules: {}
 });
 

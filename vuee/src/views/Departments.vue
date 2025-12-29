@@ -9,6 +9,7 @@
               <div class="dot"></div>
             </div>
             <h2>{{ card.title }}</h2>
+
             <div class="divider"></div>
             <div class="cta">Open dashboard →</div>
           </div>
@@ -19,11 +20,13 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import DashLayout from "../components/DashLayout.vue";
 
 const router = useRouter();
+const store = useStore();
 
 const cards = [
   {

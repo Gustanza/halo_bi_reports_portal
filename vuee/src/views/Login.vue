@@ -15,7 +15,7 @@
               <label for="username">Username</label>
               <input
                 id="username"
-                v-model="username"
+                v-model="user.email"
                 type="text"
                 autocomplete="username"
                 required
@@ -26,7 +26,7 @@
               <label for="password">Password</label>
               <input
                 id="password"
-                v-model="password"
+                v-model="user.password"
                 type="password"
                 autocomplete="current-password"
                 required
@@ -68,23 +68,26 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import store from "../store";
+import { useRouter } from "vue-router";
 
-const username = ref("");
-const password = ref("");
 const remember = ref(false);
 const error = ref("");
+const router = useRouter();
+
+const user = ref({
+  email: "",
+  password: ""
+});
 
 const handleSubmit = () => {
   error.value = "";
-
-  if (!username.value || !password.value) {
-    error.value = "Please enter your username and password.";
-    return;
-  }
-
-  // Placeholder: replace with real authentication logic or API call.
-  // For now, just redirect to the main dashboard page.
-  window.location.href = "index.html";
+  store.dispatch("login", user.value).then((result)=>{
+      if (result && result.user) {
+        router.push({name: "Departments"})
+      }
+  });
+  
 };
 
 const handleForgotPassword = () => {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rules\Password;
 
 class UsorController extends Controller
@@ -32,6 +33,7 @@ class UsorController extends Controller
         //
         $data = $request->validate([
             "name" => "required|string",
+            "role" => "required|integer",
             "email" => "required|string|email|unique:users,email",
             "password" => [
                 'required',
@@ -43,6 +45,7 @@ class UsorController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
+            'role' => $data['role'],
             'password' => $data['password']
         ]);
 
@@ -52,6 +55,35 @@ class UsorController extends Controller
             'user' => $user,
             'token'=> $token,
         ]);
+    }
+
+
+    public function login(Request $request)
+    {
+        $data = $request->validate([
+            "email" => "required",
+            "password" => [
+                "required"
+            ]
+        ]);
+
+        if (!Auth::attempt($data, true)) {
+            return response([
+                "error" => "Incorrect credentials"
+            ], 422);
+        }
+
+        $user = Auth::user();
+        $role = $user->role;
+        $token = $user->createToken('main')->plainTextToken;
+
+        return response([
+            "role" => $role,
+            "token" => $token,
+            "user" => $user,
+        ]);
+
+
     }
 
     /**
