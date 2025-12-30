@@ -4,13 +4,14 @@ import axiosClient from "../axiosClient";
 const store = createStore({
     state: {
         user: {
-            data: {},
+            name: sessionStorage.getItem('name'),
             role: sessionStorage.getItem('role'),
             token: sessionStorage.getItem('token')
         }
     },
     getters: {},
     actions: {
+
         register({ commit }, user) {
             return axiosClient.post('/users', user)
                 .then((response) => {
@@ -19,6 +20,7 @@ const store = createStore({
                     return null;
                 });
         },
+
         login({ commit }, user) {
             return axiosClient.post('/login', user)
                 .then((response) => {
@@ -28,6 +30,7 @@ const store = createStore({
                     return null;
                 });
         },
+
         getUsers({ commit }) {
             return axiosClient.get('/users')
                 .then((response) => {
@@ -36,6 +39,7 @@ const store = createStore({
                     return error;
                 });
         },
+
         updateUser({ commit }, user) {
             return axiosClient.put(`/dropUsers/${user.id}`)
                 .then((response) => {
@@ -44,6 +48,7 @@ const store = createStore({
                     return error;
                 });
         },
+
         dropUser({ commit }, user) {
             return axiosClient.delete(`/users/${user.id}`)
                 .then((response) => {
@@ -91,8 +96,9 @@ const store = createStore({
     },
     mutations: {
         setUser: (state, data) => {
-            state.user.data = data.user;
+            state.user.name = data.user.name;
             state.user.token = data.token;
+            sessionStorage.setItem('name', data.user.name)
             sessionStorage.setItem('role', data.role)
             sessionStorage.setItem("token", data.token);
         }

@@ -13,7 +13,7 @@
             color: #6b7280;
           ">
           <span>Welcome, {{ username }} </span>
-          <router-link v-if="clearanceLevel > 5" :to="{ name: 'Manage Departments' }" style="
+          <router-link v-if="role > 2" :to="{ name: 'Manage Departments' }" style="
               display: inline-flex;
               align-items: center;
               gap: 6px;
@@ -45,15 +45,16 @@
 <script setup>
 
 import { useStore } from "vuex";
-import { computed } from "vue";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const store = useStore();
 
 let username = ref('');
-let clearanceLevel = 0;
+let role = 0;
 
-username.value = computed(() => store.state.user.data.fullName);
-clearanceLevel = computed(() => store.state.user.clearanceLevel);
+onMounted(() => {
+  role = store.state.user.role;
+  username.value = store.state.user.name;
+})
 
 </script>
