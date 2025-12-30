@@ -4,13 +4,16 @@
       <main>
         <div class="page-header">
           <div>
-            <h2 class="page-title">{{ title ?? 'Title goes here' }}</h2>
+            <h2 class="page-title">{{ name ?? 'Title goes here' }}</h2>
             <p class="page-subtitle">
               {{ pageSubtitle }}
             </p>
           </div>
           <button @click="openModal" class="add-btn">
-            <i data-lucide="plus" class="icon"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
             Add New Report
           </button>
         </div>
@@ -20,9 +23,9 @@
             <thead>
               <tr>
                 <th>Report</th>
-                <th>Description of the report</th>
-                <th>BI report</th>
-                <th>Tableau</th>
+                <th>Description</th>
+                <th>Report_Link</th>
+                <th>Tableau_Link</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -36,25 +39,33 @@
                   <span v-else class="empty-cell">No description</span>
                 </td>
                 <td>
-                  <a v-if="report.biReport" :href="report.biReport" target="_blank" class="link">
-                    Link
+                  <a v-if="report.report_link" :href="report.report_link" target="_blank" class="link">
+                    {{ report.report_link }}
                   </a>
                   <span v-else class="empty-cell">—</span>
                 </td>
                 <td>
-                  <a v-if="report.tableau" :href="report.tableau" target="_blank" class="link">
-                    Link
+                  <a v-if="report.tableau_link" :href="report.tableau_link" target="_blank" class="link">
+                    {{ report.tableau_link }}
                   </a>
                   <span v-else class="empty-cell">—</span>
                 </td>
                 <td>
                   <div class="action-buttons">
                     <button @click="editReport(index)" class="action-btn edit-btn" title="Edit">
-                      <i data-lucide="pencil" class="icon"></i>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
                       <span class="btn-text">Edit</span>
                     </button>
                     <button @click="confirmDelete(index)" class="action-btn delete-btn" title="Delete">
-                      <i data-lucide="trash-2" class="icon"></i>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
                       <span class="btn-text">Delete</span>
                     </button>
                   </div>
@@ -78,40 +89,22 @@
         <form @submit.prevent="handleSubmit" class="modal-form">
           <div class="form-group">
             <label for="name">Report Name *</label>
-            <input
-              id="name"
-              v-model="formData.name"
-              type="text"
-              placeholder="Enter report name"
-              required
-            />
+            <input id="name" v-model="formData.name" type="text" placeholder="Enter report name" required />
           </div>
           <div class="form-group">
             <label for="description">Description</label>
-            <textarea
-              id="description"
-              v-model="formData.description"
-              placeholder="Enter report description"
-              rows="3"
-            ></textarea>
+            <textarea id="description" v-model="formData.description" placeholder="Enter report description"
+              rows="3"></textarea>
           </div>
           <div class="form-group">
-            <label for="biReport">BI Report URL</label>
-            <input
-              id="biReport"
-              v-model="formData.biReport"
-              type="url"
-              placeholder="https://example.com/bi-report"
-            />
+            <label for="report_link">BI Report URL</label>
+            <input id="report_link" v-model="formData.report_link" type="url"
+              placeholder="https://example.com/bi-report" />
           </div>
           <div class="form-group">
-            <label for="tableau">Tableau URL</label>
-            <input
-              id="tableau"
-              v-model="formData.tableau"
-              type="url"
-              placeholder="https://example.com/tableau-report"
-            />
+            <label for="tableau_link">tableau_link URL</label>
+            <input id="tableau_link" v-model="formData.tableau_link" type="url"
+              placeholder="https://example.com/tableau_link-report" />
           </div>
           <div class="form-actions">
             <button type="button" @click="closeModal" class="btn-cancel">
@@ -154,93 +147,23 @@
 <script setup>
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import DashLayout from "../components/DashLayout.vue";
+import { useStore } from "vuex";
 
 const props = defineProps({
-  title: String,
-  dept: {
-    type: String,
-    default: "marketing",
-  },
+  name: String,
+  id: String,
 });
+
+const store = useStore();
 
 // Placeholder data structure: replace with real data or API calls
-const departmentData = {
-  marketing: {
-    name: "Marketing Department",
-    reports: [
-      {
-        name: "Campaign Performance Overview",
-        description: "High-level view of active and past campaigns.",
-        biReport: "https://placeholder.local/bi/marketing-campaign",
-        tableau: "https://placeholder.local/tableau/marketing-campaign",
-      },
-      {
-        name: "Customer Acquisition Trends",
-        description: "Trends of new customers over time.",
-        biReport: "",
-        tableau: "",
-      },
-    ],
-  },
-  sales: {
-    name: "Sales Department",
-    reports: [
-      {
-        name: "Sales Performance Dashboard",
-        description: "Core metrics and KPIs for sales teams.",
-        biReport: "https://placeholder.local/bi/sales-performance",
-        tableau: "",
-      },
-      {
-        name: "Revenue Breakdown",
-        description: "Revenue by product, region, and segment.",
-        biReport: "",
-        tableau: "https://placeholder.local/tableau/revenue-breakdown",
-      },
-    ],
-  },
-  default: {
-    name: "Department",
-    reports: [
-      {
-        name: "Sample Report A",
-        description: "Short description of what this report covers.",
-        biReport: "",
-        tableau: "",
-      },
-      {
-        name: "Sample Report B",
-        description: "",
-        biReport: "",
-        tableau: "",
-      },
-    ],
-  },
-};
-
-const deptKey = computed(() => props.dept.toLowerCase());
-
-const deptInfo = computed(() => {
-  return departmentData[deptKey.value] || departmentData.default;
-});
 
 // Make reports reactive
-const reports = ref([...deptInfo.value.reports]);
+const reports = ref([]);
 
-// Update reports when department changes
-watch(deptInfo, (newDeptInfo) => {
-  reports.value = [...newDeptInfo.reports];
-  // Re-initialize icons after reports update
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
-}, { immediate: true });
-
-const pageTitle = computed(() => `${deptInfo.value.name} Reports`);
+const pageTitle = computed(() => `${props.name} Reports`);
 const pageSubtitle = computed(
-  () => `View and access all reports for ${deptInfo.value.name}`,
+  () => `View and access all reports for ${props.name}`,
 );
 
 // Modal state
@@ -250,8 +173,8 @@ const editingIndex = ref(null);
 const formData = ref({
   name: "",
   description: "",
-  biReport: "",
-  tableau: "",
+  report_link: "",
+  tableau_link: "",
 });
 
 // Delete modal state
@@ -267,15 +190,9 @@ const openModal = () => {
   formData.value = {
     name: "",
     description: "",
-    biReport: "",
-    tableau: "",
+    report_link: "",
+    tableau_link: "",
   };
-  // Update icons after modal opens
-  setTimeout(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  }, 0);
 };
 
 const editReport = (index) => {
@@ -283,18 +200,13 @@ const editReport = (index) => {
   editingIndex.value = index;
   const report = reports.value[index];
   formData.value = {
+    id: report.id,
     name: report.name || "",
     description: report.description || "",
-    biReport: report.biReport || "",
-    tableau: report.tableau || "",
+    report_link: report.report_link || "",
+    tableau_link: report.tableau_link || "",
   };
   isModalOpen.value = true;
-  // Update icons after modal opens
-  setTimeout(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  }, 0);
 };
 
 const closeModal = () => {
@@ -304,32 +216,35 @@ const closeModal = () => {
   formData.value = {
     name: "",
     description: "",
-    biReport: "",
-    tableau: "",
+    report_link: "",
+    tableau_link: "",
   };
 };
 
 const handleSubmit = () => {
-  if (isEditMode.value && editingIndex.value !== null) {
-    // Update existing report
-    reports.value[editingIndex.value] = {
-      name: formData.value.name,
-      description: formData.value.description || "",
-      biReport: formData.value.biReport || "",
-      tableau: formData.value.tableau || "",
-    };
+  formData.value.department_id = props.id;
+  if (!isEditMode) {
+    store.dispatch("createReport", formData.value)
+      .then((response) => {
+        if (response && response.data) {
+          fetchy();
+          closeModal();
+        }
+      }).catch((error) => {
+        console.log("This is an error", error);
+      });
   } else {
-    // Add new report to the list
-    reports.value.push({
-      name: formData.value.name,
-      description: formData.value.description || "",
-      biReport: formData.value.biReport || "",
-      tableau: formData.value.tableau || "",
-    });
+    store.dispatch("editReport", formData.value)
+      .then((response) => {
+        if (response && response.data) {
+          fetchy();
+          closeModal();
+        }
+      }).catch((error) => {
+        console.log("This is an error", error);
+      });
   }
-  
-  // Close modal and reset form
-  closeModal();
+
 };
 
 const confirmDelete = (index) => {
@@ -337,11 +252,6 @@ const confirmDelete = (index) => {
   reportToDelete.value = reports.value[index];
   isDeleteModalOpen.value = true;
   // Update icons after modal opens
-  setTimeout(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  }, 0);
 };
 
 const closeDeleteModal = () => {
@@ -351,28 +261,32 @@ const closeDeleteModal = () => {
 };
 
 const handleDelete = () => {
-  if (deletingIndex.value !== null) {
-    reports.value.splice(deletingIndex.value, 1);
-  }
-  closeDeleteModal();
+  store.dispatch("dropReport", reports.value[deletingIndex.value])
+    .then((response) => {
+      if (response) {
+        fetchy();
+        closeDeleteModal();
+      }
+    }).catch((error) => {
+      console.log("This is an error", error);
+    });
 };
 
 onMounted(() => {
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
+  fetchy();
 });
 
-// Watch for icon updates when reports change
-watch(reports, () => {
-  nextTick(() => {
-    if (window.lucide && typeof window.lucide.createIcons === "function") {
-      window.lucide.createIcons();
-    }
-  });
-}, { deep: true });
+function fetchy() {
+  store.dispatch("getDepartmentReports", props.id)
+    .then((response) => {
+      if (response && response.data) {
+        reports.value = response.data;
+      }
+    }).catch((error) => {
+      console.log("This is an error", error);
+    })
+}
+
 </script>
 
 

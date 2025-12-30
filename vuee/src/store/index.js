@@ -93,10 +93,52 @@ const store = createStore({
                     return error;
                 });
         },
+
+        // reports thingies
+        getDepartmentReports({ commit }, deptId) {
+            return axiosClient.get(`/spreports/${deptId}/reports`)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
+
+        createReport({ commit }, report) {
+            return axiosClient.post(`/reports`, report)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    console.log("Error: ", error);
+                    return error;
+                });
+        },
+
+        editReport({ commit }, report) {
+            return axiosClient.put(`/reports/${report.id}`, report)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    console.log("Error: ", error);
+                    return error;
+                });
+        },
+
+        dropReport({ commit }, report) {
+            return axiosClient.delete(`/reports/${report.id}`)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    console.log("Error: ", error);
+                    return error;
+                });
+        },
+
     },
     mutations: {
         setUser: (state, data) => {
             state.user.name = data.user.name;
+            state.user.role = data.role;
             state.user.token = data.token;
             sessionStorage.setItem('name', data.user.name)
             sessionStorage.setItem('role', data.role)

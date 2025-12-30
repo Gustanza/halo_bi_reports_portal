@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Report extends Model
+{
+    protected $fillable = [
+        'name',
+        'description',
+        'report_link',
+        'tableau_link',
+        'department_id',
+    ];
+
+    public function department() : BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+}

@@ -37,7 +37,7 @@ const routes = [
     },
 
     {
-        path: "/reports/:title",
+        path: "/reports/:name/:id",
         name: "Reports",
         meta: {
             requiresAuth: true
