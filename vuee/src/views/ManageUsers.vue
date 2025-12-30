@@ -8,7 +8,10 @@
             <p class="page-subtitle">View and manage all users in the system</p>
           </div>
           <button @click="openModal" class="add-btn">
-            <i data-lucide="plus" class="icon"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+              stroke="currentColor" class="size-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
             Add New User
           </button>
         </div>
@@ -30,24 +33,24 @@
                   <a :href="`mailto:${user.email}`" class="link">{{ user.email }}</a>
                 </td>
                 <td>
-                  {{ user.role === 3 ?"SUPER ADMIN": user.role === 2 ? "ADMIN" : "USER" }}
+                  {{ user.role === 3 ? "SUPER ADMIN" : user.role === 2 ? "ADMIN" : "USER" }}
                 </td>
                 <td>
                   <div class="action-buttons">
-                    <button
-                      @click="editUser(index)"
-                      class="action-btn edit-btn"
-                      title="Edit"
-                    >
-                      <i data-lucide="pencil" class="icon"></i>
+                    <button @click="editUser(index)" class="action-btn edit-btn" title="Edit">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                      </svg>
                       <span class="btn-text">Edit</span>
                     </button>
-                    <button
-                      @click="confirmDelete(index)"
-                      class="action-btn delete-btn"
-                      title="Delete"
-                    >
-                      <i data-lucide="trash-2" class="icon"></i>
+                    <button @click="confirmDelete(index)" class="action-btn delete-btn" title="Delete">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                      </svg>
                       <span class="btn-text">Delete</span>
                     </button>
                   </div>
@@ -71,23 +74,11 @@
         <form @submit.prevent="handleSubmit" class="modal-form">
           <div class="form-group">
             <label for="name">Full Name *</label>
-            <input
-              id="name"
-              v-model="formData.name"
-              type="text"
-              placeholder="Enter full name"
-              required
-            />
+            <input id="name" v-model="formData.name" type="text" placeholder="Enter full name" required />
           </div>
           <div class="form-group">
             <label for="email">Email *</label>
-            <input
-              id="email"
-              v-model="formData.email"
-              type="email"
-              placeholder="Enter email address"
-              required
-            />
+            <input id="email" v-model="formData.email" type="email" placeholder="Enter email address" required />
             <small class="form-hint">Enter a valid email address</small>
           </div>
           <div class="form-group">
@@ -102,16 +93,8 @@
           </div>
           <div v-if="!isEditMode" class="form-group">
             <label for="password">Password *</label>
-            <input
-              id="created_at"
-              v-model="formData.password"
-              type="password"
-              placeholder="Enter password"
-              required
-            />
-            <small class="form-hint"
-              >Enter password with atleast 8 mixed characters</small
-            >
+            <input id="created_at" v-model="formData.password" type="password" placeholder="Enter password" required />
+            <small class="form-hint">Enter password with atleast 8 mixed characters</small>
           </div>
 
           <div class="form-actions">
@@ -134,8 +117,7 @@
         </div>
         <div class="delete-modal-body">
           <p>
-            Are you sure you want to delete <strong>{{ userToDelete?.name }}</strong
-            >?
+            Are you sure you want to delete <strong>{{ userToDelete?.name }}</strong>?
           </p>
           <p class="delete-warning">This action cannot be undone.</p>
           <div class="delete-modal-actions">
@@ -156,6 +138,7 @@
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import { toast } from 'vue3-toastify';
 import DashLayout from "../components/DashLayout.vue";
+import { BeakerIcon } from '@heroicons/vue/24/solid'
 import { useStore } from "vuex";
 
 const store = useStore();
@@ -222,22 +205,24 @@ const closeModal = () => {
 };
 
 const handleSubmit = () => {
-  if (isEditMode) {
-    store.dispatch('updateUser', formData.value).then((response)=>{
-    console.log("This is a good one", response.data);
-  })
-  }else{
+  if (isEditMode.value) {
+    store.dispatch('updateUser', formData.value).then((response) => {
+      if (response && response.data) {
+        closeModal();
+        fetchy();
+      }
+    })
+  } else {
     store.dispatch("register", formData.value).then((response) => {
-    if (response && response.user) {
-      toast("Success");
-      closeModal();
-    }else{
-      toast(`${response}`);
-    }
-    
-  });
+      if (response && response.user) {
+        closeModal();
+        fetchy();
+      } else {
+        toast(`${response}`);
+      }
+    });
   }
-  
+
 };
 
 const confirmDelete = (index) => {
@@ -254,19 +239,31 @@ const closeDeleteModal = () => {
 
 const handleDelete = () => {
   if (deletingIndex.value !== null) {
-    users.value.splice(deletingIndex.value, 1);
+    const usr = users.value;
+    store.dispatch("dropUser", users.value[deletingIndex.value])
+      .then((response) => {
+        if (response) {
+          closeDeleteModal();
+          fetchy();
+        } else {
+          toast(`${response}`);
+        }
+      });
   }
-  closeDeleteModal();
+
 };
 
 onMounted(() => {
-  store.dispatch('getUsers').then((response)=>{
+  fetchy();
+});
+
+function fetchy() {
+  store.dispatch('getUsers').then((response) => {
     if (response && response.data) {
       users.value = response.data;
-      console.log("Hooray: ", response.data);
     }
   });
-});
+}
 
 </script>
 

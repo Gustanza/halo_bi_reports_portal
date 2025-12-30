@@ -4,13 +4,16 @@
             <main>
                 <div class="page-header">
                     <div>
-                        <h2 class="page-title">Manage Departments</h2>
-                        <p class="page-subtitle">
+                        <h2 class="page-name">Manage Departments</h2>
+                        <p class="page-subname">
                             View and manage all departments in the system
                         </p>
                     </div>
                     <button @click="openModal" class="add-btn">
-                        <i data-lucide="plus" class="icon"></i>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                            stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
                         Add New Department
                     </button>
                 </div>
@@ -20,16 +23,15 @@
                         <thead>
                             <tr>
                                 <th>Department</th>
-                                <th>Department Key</th>
-                                <!-- <th>Icon</th> -->
+                                <th>Description</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(department, index) in departments" :key="index">
-                                <td>{{ department.title }}</td>
+                                <td>{{ department.name }}</td>
                                 <td>
-                                    <span class="dept-key">{{ department.dept }}</span>
+                                    <span class="description-key">{{ department.description }}</span>
                                 </td>
                                 <!-- <td>
                   <div class="icon-preview">
@@ -39,13 +41,21 @@
                 </td> -->
                                 <td>
                                     <div class="action-buttons">
-                                        <button @click="editDepartment(index)" class="action-btn edit-btn" title="Edit">
-                                            <i data-lucide="pencil" class="icon"></i>
+                                        <button @click="editDepartment(index)" class="action-btn edit-btn" name="Edit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                            </svg>
                                             <span class="btn-text">Edit</span>
                                         </button>
                                         <button @click="confirmDelete(index)" class="action-btn delete-btn"
-                                            title="Delete">
-                                            <i data-lucide="trash-2" class="icon"></i>
+                                            name="Delete">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke-width="1.5" stroke="currentColor" class="size-5">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                            </svg>
                                             <span class="btn-text">Delete</span>
                                         </button>
                                     </div>
@@ -68,22 +78,15 @@
                 </div>
                 <form @submit.prevent="handleSubmit" class="modal-form">
                     <div class="form-group">
-                        <label for="title">Department Name *</label>
-                        <input id="title" v-model="formData.title" type="text" placeholder="Enter department name"
+                        <label for="name">Department Name *</label>
+                        <input id="name" v-model="formData.name" type="text" placeholder="Enter department name"
                             required />
                     </div>
                     <div class="form-group">
-                        <label for="dept">Department Key *</label>
-                        <input id="dept" v-model="formData.dept" type="text" placeholder="e.g., marketing, sales, hr"
-                            required pattern="[a-z0-9-]+" title="Lowercase letters, numbers, and hyphens only" />
-                        <small class="form-hint">Use lowercase letters, numbers, and hyphens only (e.g.,
-                            customer-care)</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="icon">Icon Name *</label>
-                        <input id="icon" v-model="formData.icon" type="text"
-                            placeholder="e.g., bar-chart-3, coins, users" required />
-                        <small class="form-hint">Lucide icon name (e.g., bar-chart-3, coins, briefcase)</small>
+                        <label for="description">Department Description *</label>
+                        <input id="description" v-model="formData.description" type="text"
+                            placeholder="e.g., All Application and Sfotware Team" required name="" />
+                        <small class="form-hint">Write a moderate number of words</small>
                     </div>
                     <div class="form-actions">
                         <button type="button" @click="closeModal" class="btn-cancel">
@@ -107,7 +110,7 @@
                     </button>
                 </div>
                 <div class="delete-modal-body">
-                    <p>Are you sure you want to delete <strong>{{ departmentToDelete?.title }}</strong>?</p>
+                    <p>Are you sure you want to delete <strong>{{ departmentToDelete?.name }}</strong>?</p>
                     <p class="delete-warning">This action cannot be undone.</p>
                     <div class="delete-modal-actions">
                         <button type="button" @click="closeDeleteModal" class="btn-cancel">
@@ -126,55 +129,15 @@
 <script setup>
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import DashLayout from "../components/DashLayout.vue";
+import { useStore } from "vuex";
 
-// Initial departments data - same as Departments.vue
-const initialDepartments = [
-    {
-        dept: "marketing",
-        icon: "bar-chart-3",
-        title: "Marketing department",
-    },
-    {
-        dept: "sales",
-        icon: "coins",
-        title: "Sales department",
-    },
-    {
-        dept: "corporate",
-        icon: "briefcase",
-        title: "Corporate departments",
-    },
-    {
-        dept: "customer-care",
-        icon: "headphones",
-        title: "Customer Care department",
-    },
-    {
-        dept: "hr",
-        icon: "users",
-        title: "HR department",
-    },
-    {
-        dept: "fixed-broadband",
-        icon: "network",
-        title: "Fixed-broadband department",
-    },
-    {
-        dept: "legal",
-        icon: "scale",
-        title: "Legal departments",
-    },
-    {
-        dept: "investment",
-        icon: "dollar-sign",
-        title: "Investment department",
-    },
-];
+
+const store = useStore();
 
 // Make departments reactive
-const departments = ref([...initialDepartments]);
+const departments = ref([]);
 
-const pageSubtitle = computed(
+const pageSubname = computed(
     () => `View and manage all departments in the system`,
 );
 
@@ -183,8 +146,8 @@ const isModalOpen = ref(false);
 const isEditMode = ref(false);
 const editingIndex = ref(null);
 const formData = ref({
-    title: "",
-    dept: "",
+    name: "",
+    description: "",
     icon: "",
 });
 
@@ -199,8 +162,8 @@ const openModal = () => {
     isModalOpen.value = true;
     // Reset form
     formData.value = {
-        title: "",
-        dept: "",
+        name: "",
+        description: "",
         icon: "",
     };
     // Update icons after modal opens
@@ -216,17 +179,12 @@ const editDepartment = (index) => {
     editingIndex.value = index;
     const department = departments.value[index];
     formData.value = {
-        title: department.title || "",
-        dept: department.dept || "",
+        id: department.id,
+        name: department.name || "",
+        description: department.description || "",
         icon: department.icon || "",
     };
     isModalOpen.value = true;
-    // Update icons after modal opens
-    nextTick(() => {
-        if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-        }
-    });
 };
 
 const closeModal = () => {
@@ -234,62 +192,41 @@ const closeModal = () => {
     isEditMode.value = false;
     editingIndex.value = null;
     formData.value = {
-        title: "",
-        dept: "",
+        name: "",
+        description: "",
         icon: "",
     };
 };
 
 const handleSubmit = () => {
-    // Normalize dept key to lowercase
-    const normalizedDept = formData.value.dept.toLowerCase().trim();
+    if (!isEditMode.value) {
+        store.dispatch("createDepartment", formData.value)
+            .then((response) => {
+                if (response && response.data) {
+                    closeModal();
+                    fetchy();
+                }
+            }).catch((error) => {
 
-    if (isEditMode.value && editingIndex.value !== null) {
-        // Update existing department
-        departments.value[editingIndex.value] = {
-            title: formData.value.title.trim(),
-            dept: normalizedDept,
-            icon: formData.value.icon.trim(),
-        };
+            });
     } else {
-        // Check if dept key already exists
-        const deptExists = departments.value.some(
-            (dept) => dept.dept === normalizedDept
-        );
-        if (deptExists) {
-            alert("A department with this key already exists!");
-            return;
-        }
+        store.dispatch("updateDepartment", formData.value)
+            .then((response) => {
+                if (response && response.data) {
+                    closeModal();
+                    fetchy();
+                }
+            }).catch((error) => {
 
-        // Add new department to the list
-        departments.value.push({
-            title: formData.value.title.trim(),
-            dept: normalizedDept,
-            icon: formData.value.icon.trim(),
-        });
+            });
     }
 
-    // Close modal and reset form
-    closeModal();
-
-    // Re-initialize icons after update
-    nextTick(() => {
-        if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-        }
-    });
 };
 
 const confirmDelete = (index) => {
     deletingIndex.value = index;
     departmentToDelete.value = departments.value[index];
     isDeleteModalOpen.value = true;
-    // Update icons after modal opens
-    nextTick(() => {
-        if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-        }
-    });
 };
 
 const closeDeleteModal = () => {
@@ -300,38 +237,38 @@ const closeDeleteModal = () => {
 
 const handleDelete = () => {
     if (deletingIndex.value !== null) {
-        departments.value.splice(deletingIndex.value, 1);
+        store.dispatch("deleteDepartment", departments.value[deletingIndex.value])
+            .then((response) => {
+                if (response) {
+                    closeModal();
+                    fetchy();
+                }
+            }).catch((error) => {
+
+            });
     }
     closeDeleteModal();
-
-    // Re-initialize icons after delete
-    nextTick(() => {
-        if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-        }
-    });
 };
 
 onMounted(() => {
-    nextTick(() => {
-        if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-        }
-    });
+    fetchy();
 });
 
-// Watch for icon updates when departments change
-watch(departments, () => {
-    nextTick(() => {
-        if (window.lucide && typeof window.lucide.createIcons === "function") {
-            window.lucide.createIcons();
-        }
-    });
-}, { deep: true });
+function fetchy() {
+    store.dispatch("getDepartments")
+        .then((response) => {
+            if (response && response.data) {
+                departments.value = response.data;
+            }
+        }).catch((error) => {
+            console.log("This is an error", error);
+        })
+}
+
 </script>
 
 <style scoped>
-.page-title {
+.page-name {
     font-size: 28px;
     font-weight: 600;
     margin-bottom: 8px;
@@ -346,7 +283,7 @@ watch(departments, () => {
     gap: 24px;
 }
 
-.page-subtitle {
+.page-subname {
     color: var(--muted);
     font-size: 14px;
     margin-bottom: 0;
@@ -426,7 +363,7 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 
-.dept-key {
+.description-key {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
     background: rgba(249, 115, 22, 0.1);
     padding: 4px 8px;

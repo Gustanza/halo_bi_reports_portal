@@ -12,7 +12,7 @@ const store = createStore({
     getters: {},
     actions: {
         register({ commit }, user) {
-            return axiosClient.post('/register', user)
+            return axiosClient.post('/users', user)
                 .then((response) => {
                     return response.data;
                 }).catch((error) => {
@@ -29,21 +29,65 @@ const store = createStore({
                 });
         },
         getUsers({ commit }) {
-            return axiosClient.get('/users').then((response) => {
-                return response.data;
-            }).catch((error) => {
-                return error;
-            });
+            return axiosClient.get('/users')
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
         },
         updateUser({ commit }, user) {
-            return axiosClient.put(`/users/${user.id}`).then((response) => {
-                console.log("Dat comes", response.data)
-                return response.data;
-            }).catch((error) => {
-                console.log("Dat comes", error)
-                return error;
-            });
-        }
+            return axiosClient.put(`/dropUsers/${user.id}`)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
+        dropUser({ commit }, user) {
+            return axiosClient.delete(`/users/${user.id}`)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
+
+        // Gein Departments
+        getDepartments({ commit }) {
+            return axiosClient.get('/departments')
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
+        createDepartment({ commit }, department) {
+            return axiosClient.post('/departments', department)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
+
+        updateDepartment({ commit }, department) {
+            return axiosClient.put(`/departments/${department.id}`, department)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
+
+        deleteDepartment({ commit }, department) {
+            return axiosClient.delete(`/departments/${department.id}`)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    return error;
+                });
+        },
     },
     mutations: {
         setUser: (state, data) => {
