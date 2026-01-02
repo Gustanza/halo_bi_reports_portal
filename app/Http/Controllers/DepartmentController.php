@@ -6,8 +6,6 @@ use App\Http\Requests\UpdateDepartmentRequest;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 
-Tweny-Hundred-1001151120000624
-
 class DepartmentController extends Controller
 {
     /**
