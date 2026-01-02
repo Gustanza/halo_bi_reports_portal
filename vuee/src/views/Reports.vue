@@ -9,7 +9,7 @@
               {{ pageSubtitle }}
             </p>
           </div>
-          <button @click="openModal" class="add-btn">
+          <button v-if="store.state.user.role > 1" @click="openModal" class="add-btn">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -22,35 +22,37 @@
           <table>
             <thead>
               <tr>
-                <th>Report</th>
-                <th>Description</th>
-                <th>Report_Link</th>
-                <th>Tableau_Link</th>
-                <th>Actions</th>
+                <th class="col-name">Report</th>
+                <th class="col-description">Description</th>
+                <th class="col-link">Report_Link</th>
+                <th class="col-link">Tableau_Link</th>
+                <th v-if="store.state.user.role > 1" class="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(report, index) in reports" :key="index">
-                <td>{{ report.name }}</td>
-                <td>
+                <td class="col-name">{{ report.name }}</td>
+                <td class="col-description">
                   <span v-if="report.description">
                     {{ report.description }}
                   </span>
                   <span v-else class="empty-cell">No description</span>
                 </td>
-                <td>
-                  <a v-if="report.report_link" :href="report.report_link" target="_blank" class="link">
+                <td class="col-link">
+                  <a v-if="report.report_link" :href="report.report_link" target="_blank" class="link"
+                    :title="report.report_link">
                     {{ report.report_link }}
                   </a>
                   <span v-else class="empty-cell">—</span>
                 </td>
-                <td>
-                  <a v-if="report.tableau_link" :href="report.tableau_link" target="_blank" class="link">
+                <td class="col-link">
+                  <a v-if="report.tableau_link" :href="report.tableau_link" target="_blank" class="link"
+                    :title="report.tableau_link">
                     {{ report.tableau_link }}
                   </a>
                   <span v-else class="empty-cell">—</span>
                 </td>
-                <td>
+                <td v-if="store.state.user.role > 1" class="col-actions">
                   <div class="action-buttons">
                     <button @click="editReport(index)" class="action-btn edit-btn" title="Edit">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -223,7 +225,7 @@ const closeModal = () => {
 
 const handleSubmit = () => {
   formData.value.department_id = props.id;
-  if (!isEditMode) {
+  if (!isEditMode.value) {
     store.dispatch("createReport", formData.value)
       .then((response) => {
         if (response && response.data) {
@@ -397,6 +399,32 @@ td {
   color: var(--text);
 }
 
+/* Column width optimizations */
+.col-name {
+  width: 25%;
+  min-width: 200px;
+}
+
+.col-description {
+  width: 25%;
+  min-width: 150px;
+  max-width: 300px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.col-link {
+  width: 20%;
+  min-width: 150px;
+  max-width: 250px;
+}
+
+.col-actions {
+  width: 10%;
+  min-width: 140px;
+  white-space: nowrap;
+}
+
 tbody tr {
   transition: background-color 0.2s ease;
 }
@@ -414,6 +442,11 @@ tbody tr:last-child td {
   text-decoration: none;
   font-weight: 500;
   transition: opacity 0.2s ease;
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .link:hover {

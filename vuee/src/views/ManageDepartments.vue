@@ -22,16 +22,21 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Department</th>
-                                <th>Description</th>
-                                <th>Actions</th>
+                                <th class="col-name">Department</th>
+                                <th class="col-description">Description</th>
+                                <th class="col-actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(department, index) in departments" :key="index">
-                                <td>{{ department.name }}</td>
-                                <td>
-                                    <span class="description-key">{{ department.description }}</span>
+                                <td class="col-name">
+                                    <span class="department-name">{{ department.name }}</span>
+                                </td>
+                                <td class="col-description">
+                                    <span v-if="department.description" class="description-text">
+                                        {{ department.description }}
+                                    </span>
+                                    <span v-else class="empty-cell">No description</span>
                                 </td>
                                 <!-- <td>
                   <div class="icon-preview">
@@ -39,7 +44,7 @@
                     <span class="icon-name">{{ department.icon }}</span>
                   </div>
                 </td> -->
-                                <td>
+                                <td class="col-actions">
                                     <div class="action-buttons">
                                         <button @click="editDepartment(index)" class="action-btn edit-btn" name="Edit">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -351,6 +356,26 @@ td {
     color: var(--text);
 }
 
+/* Column width optimizations */
+.col-name {
+    width: 35%;
+    min-width: 250px;
+}
+
+.col-description {
+    width: 45%;
+    min-width: 200px;
+    max-width: 500px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.col-actions {
+    width: 20%;
+    min-width: 140px;
+    white-space: nowrap;
+}
+
 tbody tr {
     transition: background-color 0.2s ease;
 }
@@ -363,14 +388,26 @@ tbody tr:last-child td {
     border-bottom: none;
 }
 
-.description-key {
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    background: rgba(249, 115, 22, 0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--halotel-orange);
-    font-weight: 500;
+.department-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+}
+
+.description-text {
+    display: block;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.empty-cell {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 13px;
 }
 
 .icon-preview {
