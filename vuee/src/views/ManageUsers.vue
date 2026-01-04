@@ -92,13 +92,16 @@
             <small class="form-hint">Choose an appropriate role for the user</small>
           </div>
 
-          <div v-for="dept in departments" :key="dept.id">
-            <label for="departments">
-              {{ dept.name }}
-            </label>
-            <input type="checkbox" id="departments" :value="dept.id" v-model="formData.departments">
+          <div class="form-group">
+            <label>Departments</label>
+            <div class="checkbox-group">
+              <label v-for="dept in departments" :key="dept.id" class="checkbox-item">
+                <input type="checkbox" :id="`dept-${dept.id}`" :value="dept.id" v-model="formData.departments" required>
+                <span class="checkbox-label">{{ dept.name }} {{ dept.id }}</span>
+              </label>
+            </div>
+            <small class="form-hint">You can select multiple departments (check all that apply)</small>
           </div>
-
           <div v-if="!isEditMode" class="form-group">
             <label for="password">Password *</label>
             <input id="created_at" v-model="formData.password" type="password" placeholder="Enter password" required />
@@ -215,6 +218,7 @@ const closeModal = () => {
 };
 
 const handleSubmit = () => {
+  // return console.log("Come look at this:", formData.value);
   if (isEditMode.value) {
     store.dispatch('updateUser', formData.value).then((response) => {
       if (response && response.data) {
@@ -276,7 +280,7 @@ function fetchy() {
   store.dispatch('getDepartments').then((response) => {
     if (response && response.data) {
       departments.value = response.data;
-      console.log("Departments are:", departments.value);
+      // console.log("Departments are:", departments.value);
     }
   });
 }
@@ -528,7 +532,8 @@ tbody tr:last-child td {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--border);
@@ -538,13 +543,29 @@ tbody tr:last-child td {
   color: var(--text);
   background: var(--card);
   transition: border-color 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.form-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--halotel-orange);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+.form-group select:hover {
+  border-color: var(--halotel-orange);
 }
 
 .form-hint {
@@ -552,6 +573,76 @@ tbody tr:last-child td {
   margin-top: 6px;
   font-size: 12px;
   color: var(--muted);
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border-left: 3px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.checkbox-item:hover {
+  background-color: rgba(249, 115, 22, 0.05);
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  accent-color: var(--halotel-orange);
+  flex-shrink: 0;
+  appearance: checkbox;
+  -webkit-appearance: checkbox;
+  -moz-appearance: checkbox;
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+  accent-color: var(--halotel-orange);
+  background-color: var(--halotel-orange);
+  border-color: var(--halotel-orange);
+}
+
+.checkbox-item input[type="checkbox"]:focus {
+  outline: 2px solid var(--halotel-orange);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+.checkbox-item:has(input[type="checkbox"]:checked) {
+  background-color: rgba(249, 115, 22, 0.08);
+  border-left: 3px solid var(--halotel-orange);
+}
+
+.checkbox-item:has(input[type="checkbox"]:checked) .checkbox-label {
+  color: var(--halotel-orange);
+  font-weight: 500;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  margin-left: 20px;
+  color: var(--text);
+  font-weight: 400;
+  user-select: none;
 }
 
 .form-actions {

@@ -22,4 +22,9 @@ class Department extends Model
     {
         return $this->hasMany(Report::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'department_user');
+    }
 }

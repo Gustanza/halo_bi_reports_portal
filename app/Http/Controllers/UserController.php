@@ -30,6 +30,7 @@ class UserController extends Controller
             'role' => $data['role'],
             'password' => $data['password']
         ]);
+        $user->departments()->attach($data['departments']);
         $token = $user->createToken('main')->plainTextToken;
         return Response([
             'user' => $user,
@@ -50,7 +51,10 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->validated());
+        $data = $request->validated();
+        $user->departments()->detach();
+        $user->departments()->attach($data['departments']);
+        $user->update($data);
         // Refresh the model to get the latest data from the database
         $user->refresh();
         return new UserResource($user);
