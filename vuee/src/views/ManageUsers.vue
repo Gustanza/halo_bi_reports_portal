@@ -91,6 +91,14 @@
             </select>
             <small class="form-hint">Choose an appropriate role for the user</small>
           </div>
+
+          <div v-for="dept in departments" :key="dept.id">
+            <label for="departments">
+              {{ dept.name }}
+            </label>
+            <input type="checkbox" id="departments" :value="dept.id" v-model="formData.departments">
+          </div>
+
           <div v-if="!isEditMode" class="form-group">
             <label for="password">Password *</label>
             <input id="created_at" v-model="formData.password" type="password" placeholder="Enter password" required />
@@ -138,14 +146,12 @@
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import { toast } from 'vue3-toastify';
 import DashLayout from "../components/DashLayout.vue";
-import { BeakerIcon } from '@heroicons/vue/24/solid'
 import { useStore } from "vuex";
 
 const store = useStore();
 
 const users = ref([]);
-
-const pageSubtitle = computed(() => `View and manage all users in the system`);
+const departments = ref([]);
 
 // Modal state
 const isModalOpen = ref(false);
@@ -156,6 +162,7 @@ const formData = ref({
   email: "",
   created_at: "",
   role: 0,
+  departments: [],
   password: "",
 });
 
@@ -174,6 +181,7 @@ const openModal = () => {
     email: "",
     created_at: "",
     role: 0,
+    departments: [],
     password: "",
   };
 };
@@ -186,6 +194,7 @@ const editUser = (index) => {
     id: user.id,
     name: user.name || "",
     email: user.email || "",
+    departments: user.departments || [],
     role: user.role || 0,
   };
   isModalOpen.value = true;
@@ -200,6 +209,7 @@ const closeModal = () => {
     email: "",
     created_at: "",
     role: 0,
+    departments: [],
     password: "",
   };
 };
@@ -261,6 +271,12 @@ function fetchy() {
   store.dispatch('getUsers').then((response) => {
     if (response && response.data) {
       users.value = response.data;
+    }
+  });
+  store.dispatch('getDepartments').then((response) => {
+    if (response && response.data) {
+      departments.value = response.data;
+      console.log("Departments are:", departments.value);
     }
   });
 }

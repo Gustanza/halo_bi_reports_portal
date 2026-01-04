@@ -41,7 +41,7 @@ const store = createStore({
         },
 
         updateUser({ commit }, user) {
-            return axiosClient.put(`/dropUsers/${user.id}`)
+            return axiosClient.put(`/users/${user.id}`, user)
                 .then((response) => {
                     return response.data;
                 }).catch((error) => {

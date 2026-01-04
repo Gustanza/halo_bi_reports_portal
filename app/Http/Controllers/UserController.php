@@ -46,7 +46,7 @@ class UserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in storage. 
      */
     public function update(UpdateUserRequest $request, User $user)
     {
