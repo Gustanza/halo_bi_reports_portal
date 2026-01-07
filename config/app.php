@@ -123,4 +123,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    // RANDOM SHEET
+    'frontend_url' => env('FRONTEND_URL'),
 ];

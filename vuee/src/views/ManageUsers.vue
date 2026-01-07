@@ -96,8 +96,8 @@
             <label>Departments</label>
             <div class="checkbox-group">
               <label v-for="dept in departments" :key="dept.id" class="checkbox-item">
-                <input type="checkbox" :id="`dept-${dept.id}`" :value="dept.id" v-model="formData.departments" required>
-                <span class="checkbox-label">{{ dept.name }} {{ dept.id }}</span>
+                <input type="checkbox" :id="`dept-${dept.id}`" :value="Number(dept.id)" v-model="formData.departments">
+                <span class="checkbox-label"> {{ dept.name }} </span>
               </label>
             </div>
             <small class="form-hint">You can select multiple departments (check all that apply)</small>
@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch, nextTick } from "vue";
+import { onMounted, ref, watch, nextTick } from "vue";
 import { toast } from 'vue3-toastify';
 import DashLayout from "../components/DashLayout.vue";
 import { useStore } from "vuex";
@@ -189,15 +189,49 @@ const openModal = () => {
   };
 };
 
+// const editUser = (index) => {
+//   isEditMode.value = true;
+//   editingIndex.value = index;
+//   const user = users.value[index];
+
+//   // // Normalize departments to array of IDs (handle both object arrays and ID arrays)
+//   // let departmentIds = [];
+//   // if (user.departments && Array.isArray(user.departments)) {
+//   //   departmentIds = user.departments.map(dept => {
+//   //     // If department is an object, extract the id; otherwise use the value directly
+//   //     return typeof dept === 'object' && dept !== null ? dept.id : dept;
+//   //   }).map(id => Number(id)); // Ensure all IDs are numbers to match checkbox values
+//   // }
+
+//   formData.value = {
+//     id: user.id,
+//     name: user.name || "",
+//     email: user.email || "",
+//     departments: user.departments,
+//     role: user.role || 0,
+//   };
+//   isModalOpen.value = true;
+// };
+
 const editUser = (index) => {
   isEditMode.value = true;
   editingIndex.value = index;
   const user = users.value[index];
+  // Normalize departments to array of IDs (handle both object arrays and ID arrays)
+  let departmentIds = [];
+  console.log("Look here", user.departments)
+  if (user.departments && Array.isArray(user.departments)) {
+    departmentIds = user.departments.map(dept => {
+      // If department is an object, extract the id; otherwise use the value directly
+      return typeof dept === 'object' && dept !== null ? dept.id : dept;
+    }).map(id => Number(id)); // Ensure all IDs are numbers to match checkbox values
+  }
+  console.log("Look here", departmentIds)
   formData.value = {
     id: user.id,
     name: user.name || "",
     email: user.email || "",
-    departments: user.departments || [],
+    departments: departmentIds,
     role: user.role || 0,
   };
   isModalOpen.value = true;
@@ -271,16 +305,17 @@ onMounted(() => {
   fetchy();
 });
 
-function fetchy() {
-  store.dispatch('getUsers').then((response) => {
-    if (response && response.data) {
-      users.value = response.data;
-    }
-  });
+async function fetchy() {
   store.dispatch('getDepartments').then((response) => {
     if (response && response.data) {
       departments.value = response.data;
-      // console.log("Departments are:", departments.value);
+      console.log("Departments are:", departments.value);
+    }
+  });
+  store.dispatch('getUsers').then((response) => {
+    console.log("Users:", response.data)
+    if (response && response.data) {
+      users.value = response.data;
     }
   });
 }

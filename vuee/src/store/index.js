@@ -4,6 +4,7 @@ import axiosClient from "../axiosClient";
 const store = createStore({
     state: {
         user: {
+            id: sessionStorage.getItem('id'),
             name: sessionStorage.getItem('name'),
             role: sessionStorage.getItem('role'),
             token: sessionStorage.getItem('token')
@@ -36,6 +37,17 @@ const store = createStore({
                 .then((response) => {
                     return response.data;
                 }).catch((error) => {
+                    return error;
+                });
+        },
+
+        getUser({ commit }, user) {
+
+            return axiosClient.get(`/users/${user.id}`)
+                .then((response) => {
+                    return response.data;
+                }).catch((error) => {
+                    console.log("Shida ni", error);
                     return error;
                 });
         },
@@ -137,9 +149,11 @@ const store = createStore({
     },
     mutations: {
         setUser: (state, data) => {
+            state.user.id = data.user.id;
             state.user.name = data.user.name;
             state.user.role = data.role;
             state.user.token = data.token;
+            sessionStorage.setItem('id', data.user.id)
             sessionStorage.setItem('name', data.user.name)
             sessionStorage.setItem('role', data.role)
             sessionStorage.setItem("token", data.token);

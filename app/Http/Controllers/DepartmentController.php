@@ -11,7 +11,7 @@ class DepartmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index() 
     {
         $departments = Department::paginate();
         return DepartmentResource::collection($departments);

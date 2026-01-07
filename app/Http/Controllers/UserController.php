@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Support\Facades\Password;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -43,7 +44,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        //
+        $deps =  $user->departments;
+        return response($deps);
+        // return new UserResource($user);
     }
 
     /**
@@ -68,4 +71,53 @@ class UserController extends Controller
         $result = User::findOrFail($id)->delete();
         return response($result, 203);
     }
+
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            "email" => "required|email|exists:users,email"
+        ]);
+        $status = Password::sendResetLink($request->only("email"));
+        return $status === Password::RESET_LINK_SENT ?
+            response()->json([
+                "error" => false,
+                "data" => "RESET LINK SENT",
+            ]): 
+            response()->json([
+                "error" => true,
+                "data" => "SHEET HAPPENED",
+            ]);
+    }
+
+
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password)
+                ])->save();
+            }
+        );
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages([
+                'email' => [__($status)],
+            ]);
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Password reset successful',
+        ]);
+    }
+
 }

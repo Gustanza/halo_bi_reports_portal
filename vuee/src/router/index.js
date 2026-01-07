@@ -6,6 +6,7 @@ import Reports from "../views/Reports.vue"
 import store from "../store";
 import ManageDepartments from "../views/ManageDepartments.vue";
 import ManageUsers from "../views/ManageUsers.vue";
+import ForgotPassword from "../views/ForgotPassword.vue"
 
 
 import { createRouter, createWebHistory } from 'vue-router';
@@ -25,6 +26,11 @@ const routes = [
                 path: "/login",
                 name: "Login",
                 component: Login
+            },
+            {
+                path: "/forgot-password",
+                name: "ForgotPassword",
+                component: ForgotPassword
             }
         ]
     },

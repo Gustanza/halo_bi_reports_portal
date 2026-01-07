@@ -50,13 +50,23 @@ onMounted(() => {
 });
 
 function fetchy() {
-  store.dispatch("getDepartments")
+  // store.dispatch("getDepartments")
+  //   .then((response) => {
+  //     if (response && response.data) {
+  //       departments.value = response.data;
+  //     }
+  //   }).catch((error) => {
+  //     console.log("This is an error", error);
+  //   });
+
+  store.dispatch("getUser", { id: store.state.user.id })
     .then((response) => {
-      if (response && response.data) {
-        departments.value = response.data;
+      if (response) {
+        departments.value = response;
       }
     }).catch((error) => {
       console.log("This is an error", error);
     })
+
 }
 </script>

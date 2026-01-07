@@ -13,24 +13,12 @@
           <form class="auth-form" @submit.prevent="handleSubmit">
             <div class="field">
               <label for="username">Username</label>
-              <input
-                id="username"
-                v-model="user.email"
-                type="text"
-                autocomplete="username"
-                required
-              />
+              <input id="username" v-model="user.email" type="text" autocomplete="username" required />
             </div>
 
             <div class="field">
               <label for="password">Password</label>
-              <input
-                id="password"
-                v-model="user.password"
-                type="password"
-                autocomplete="current-password"
-                required
-              />
+              <input id="password" v-model="user.password" type="password" autocomplete="current-password" required />
             </div>
 
             <div class="field field-inline">
@@ -38,13 +26,11 @@
                 <input v-model="remember" type="checkbox" />
                 <span>Remember this device</span>
               </label>
-              <button
-                type="button"
-                class="link-button"
-                @click.prevent="handleForgotPassword"
-              >
-                Forgot password?
-              </button>
+              <router-link :to="{ name: 'ForgotPassword' }">
+                <button type="button" class="link-button">
+                  Forgot password?
+                </button>
+              </router-link>
             </div>
 
             <button class="primary-button" type="submit">
@@ -82,12 +68,12 @@ const user = ref({
 
 const handleSubmit = () => {
   error.value = "";
-  store.dispatch("login", user.value).then((result)=>{
-      if (result && result.user) {
-        router.push({name: "Departments"})
-      }
+  store.dispatch("login", user.value).then((result) => {
+    if (result && result.user) {
+      router.push({ name: "Departments" })
+    }
   });
-  
+
 };
 
 const handleForgotPassword = () => {
@@ -321,4 +307,3 @@ footer {
   }
 }
 </style>
-
