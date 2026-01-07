@@ -1,12 +1,12 @@
 import Login from "../views/Login.vue";
 import AuthLayout from "../components/AuthLayout.vue";
-import DashLayout from "../components/DashLayout.vue";
 import Departments from "../views/Departments.vue";
 import Reports from "../views/Reports.vue"
 import store from "../store";
 import ManageDepartments from "../views/ManageDepartments.vue";
 import ManageUsers from "../views/ManageUsers.vue";
-import ForgotPassword from "../views/ForgotPassword.vue"
+import ForgotPassword from "../views/ForgotPassword.vue";
+import ResetPassword from "../views/ResetPassword.vue";
 
 
 import { createRouter, createWebHistory } from 'vue-router';
@@ -31,6 +31,11 @@ const routes = [
                 path: "/forgot-password",
                 name: "ForgotPassword",
                 component: ForgotPassword
+            },
+            {
+                path: "/reset-password",
+                name: "ResetPassword",
+                component: ResetPassword
             }
         ]
     },
