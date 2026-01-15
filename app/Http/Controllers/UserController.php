@@ -28,7 +28,7 @@ class UserController extends Controller
     {
         $data = $request->validated();
         $user = User::create([
-            'name' => $data['name'],
+            'name' => $data['name'], 
             'email' => $data['email'],
             'role' => $data['role'],
             'password' => $data['password']

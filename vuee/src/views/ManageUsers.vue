@@ -23,6 +23,7 @@
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Department</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -32,8 +33,24 @@
                 <td>
                   <a :href="`mailto:${user.email}`" class="link">{{ user.email }}</a>
                 </td>
-                <td>
+                <!-- <td>
                   {{ user.role === 3 ? "SUPER ADMIN" : user.role === 2 ? "ADMIN" : "USER" }}
+                </td> -->
+                <td>
+                  <div class="form-group">
+                    <select id="role" v-model="user.role" @change="onRoleChange" required>
+                      <option :value="0">--- Select Role ---</option>
+                      <option :value="1">User</option>
+                      <option :value="2">Admin</option>
+                      <option :value="3">Super Admin</option>
+                    </select>
+                  </div>
+                </td>
+                <td>
+                  <div v-for="dpt in user.departments" :key="dpt">
+                    <span style="background-color: grey; padding: 1px 8px; border-radius: 8px; color: white">{{
+                      dpt.name.toLowerCase() }}</span>
+                  </div>
                 </td>
                 <td>
                   <div class="action-buttons">
@@ -52,6 +69,14 @@
                           d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                       </svg>
                       <span class="btn-text">Delete</span>
+                    </button>
+                    <button :disabled="!isRoleChanged" @click="handleSaving(user)" class="action-btn" title="Delete">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-6" color="green">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" />
+                      </svg>
+                      <span class="btn-text">Save</span>
                     </button>
                   </div>
                 </td>
@@ -78,7 +103,10 @@
           </div>
           <div class="form-group">
             <label for="email">Email *</label>
-            <input id="email" v-model="formData.email" type="email" placeholder="Enter email address" required />
+            <input v-if="isEditMode" disabled="true" id="email" v-model="formData.email" type="email"
+              placeholder="Enter email address" required />
+            <input v-if="!isEditMode" id="email" v-model="formData.email" type="email" placeholder="Enter email address"
+              required />
             <small class="form-hint">Enter a valid email address</small>
           </div>
           <div class="form-group">
@@ -113,6 +141,7 @@
             <button type="submit" class="btn-submit">
               {{ isEditMode ? "Update User" : "Add User" }}
             </button>
+
           </div>
         </form>
       </div>
@@ -159,6 +188,7 @@ const departments = ref([]);
 // Modal state
 const isModalOpen = ref(false);
 const isEditMode = ref(false);
+const isRoleChanged = ref(false);
 const editingIndex = ref(null);
 const formData = ref({
   name: "",
@@ -219,14 +249,12 @@ const editUser = (index) => {
   const user = users.value[index];
   // Normalize departments to array of IDs (handle both object arrays and ID arrays)
   let departmentIds = [];
-  console.log("Look here", user.departments)
   if (user.departments && Array.isArray(user.departments)) {
     departmentIds = user.departments.map(dept => {
       // If department is an object, extract the id; otherwise use the value directly
       return typeof dept === 'object' && dept !== null ? dept.id : dept;
     }).map(id => Number(id)); // Ensure all IDs are numbers to match checkbox values
   }
-  console.log("Look here", departmentIds)
   formData.value = {
     id: user.id,
     name: user.name || "",
@@ -236,6 +264,10 @@ const editUser = (index) => {
   };
   isModalOpen.value = true;
 };
+
+function onRoleChange(event) {
+  isRoleChanged.value = true;
+}
 
 const closeModal = () => {
   isModalOpen.value = false;
@@ -273,6 +305,24 @@ const handleSubmit = () => {
 
 };
 
+function handleSaving(user) {
+  // console.log("Loooook: ", user.value)
+  let departmentIds = [];
+  if (user.departments && Array.isArray(user.departments)) {
+    departmentIds = user.departments.map(dept => {
+      // If department is an object, extract the id; otherwise use the value directly
+      return typeof dept === 'object' && dept !== null ? dept.id : dept;
+    }).map(id => Number(id)); // Ensure all IDs are numbers to match checkbox values
+  }
+  user.departments = departmentIds;
+  console.log("Loooook: ", user);
+  store.dispatch('updateUser', user).then((response) => {
+    if (response && response.data) {
+      fetchy();
+    }
+  })
+}
+
 const confirmDelete = (index) => {
   deletingIndex.value = index;
   userToDelete.value = users.value[index];
@@ -309,11 +359,9 @@ async function fetchy() {
   store.dispatch('getDepartments').then((response) => {
     if (response && response.data) {
       departments.value = response.data;
-      console.log("Departments are:", departments.value);
     }
   });
   store.dispatch('getUsers').then((response) => {
-    console.log("Users:", response.data)
     if (response && response.data) {
       users.value = response.data;
     }
