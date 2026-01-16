@@ -41,27 +41,49 @@
                     <select id="role" v-model="user.role" @change="onRoleChange" required>
                       <option :value="0">--- Select Role ---</option>
                       <option :value="1">User</option>
-                      <option :value="2">Admin</option>
-                      <option :value="3">Super Admin</option>
+                      <option :value="2">Admin </option>
+                      <option v-if="currentRole > 2" :value="3">Super Admin</option>
                     </select>
                   </div>
                 </td>
                 <td>
-                  <div v-for="dpt in user.departments" :key="dpt">
-                    <span style="background-color: grey; padding: 1px 8px; border-radius: 8px; color: white">{{
-                      dpt.name.toLowerCase() }}</span>
+                  <div v-for="dpt in user.departments" :key="dpt" @click="editUser(index)" style="cursor: pointer;">
+                    <span style="background-color: grey; 
+                    cursor: pointer;
+                    padding: 1px 8px; border-radius: 8px; color: white">{{
+                      dpt.name.toLowerCase() }}
+                    </span>
                   </div>
+                  <button v-if="!user.departments || user.departments.length === 0" @click="editUser(index)"
+                    class="action-btn" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                      stroke="currentColor" class="size-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    <span class="btn-text">Assign</span>
+                  </button>
                 </td>
                 <td>
                   <div class="action-buttons">
-                    <button @click="editUser(index)" class="action-btn edit-btn" title="Edit">
+                    <!-- Save -->
+                    <button @click="handleSaving(user)" class="action-btn save-btn" title="Delete">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-5">
+                        stroke="currentColor" class="size-6" color="green">
                         <path stroke-linecap="round" stroke-linejoin="round"
-                          d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                          d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" />
                       </svg>
-                      <span class="btn-text">Edit</span>
+                      <span class="btn-text">Save</span>
                     </button>
+                    <!-- Reset -->
+                    <button @click="resetPassword(user.email)" class="action-btn save-btn" title="Delete">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                        stroke="currentColor" class="size-6">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+                      <span class="btn-text">Reset</span>
+                    </button>
+                    <!-- Delete -->
                     <button @click="confirmDelete(index)" class="action-btn delete-btn" title="Delete">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                         stroke="currentColor" class="size-5">
@@ -69,14 +91,6 @@
                           d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
                       </svg>
                       <span class="btn-text">Delete</span>
-                    </button>
-                    <button :disabled="!isRoleChanged" @click="handleSaving(user)" class="action-btn" title="Delete">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                        stroke="currentColor" class="size-6" color="green">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" />
-                      </svg>
-                      <span class="btn-text">Save</span>
                     </button>
                   </div>
                 </td>
@@ -91,31 +105,28 @@
     <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ isEditMode ? "Edit User" : "Add New User" }}</h3>
+          <h3>{{ isEditMode ? "Assign Department(s)" : "Add New User" }}</h3>
           <button @click="closeModal" class="close-btn">
             <i data-lucide="x" class="icon"></i>
           </button>
         </div>
         <form @submit.prevent="handleSubmit" class="modal-form">
-          <div class="form-group">
+          <div v-if="!isEditMode" class="form-group">
             <label for="name">Full Name *</label>
             <input id="name" v-model="formData.name" type="text" placeholder="Enter full name" required />
           </div>
-          <div class="form-group">
+          <div v-if="!isEditMode" class="form-group">
             <label for="email">Email *</label>
-            <input v-if="isEditMode" disabled="true" id="email" v-model="formData.email" type="email"
-              placeholder="Enter email address" required />
-            <input v-if="!isEditMode" id="email" v-model="formData.email" type="email" placeholder="Enter email address"
-              required />
+            <input id="email" v-model="formData.email" type="email" placeholder="Enter email address" required />
             <small class="form-hint">Enter a valid email address</small>
           </div>
-          <div class="form-group">
+          <div v-if="!isEditMode" class="form-group">
             <label for="role">User Role *</label>
             <select id="role" v-model="formData.role" required>
               <option :value="0">--- Select Role ---</option>
               <option :value="1">User</option>
               <option :value="2">Admin</option>
-              <option :value="3">Super Admin</option>
+              <option v-if="currentRole > 2" :value="3">Super Admin</option>
             </select>
             <small class="form-hint">Choose an appropriate role for the user</small>
           </div>
@@ -175,14 +186,23 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, nextTick } from "vue";
-import { toast } from 'vue3-toastify';
+import { computed, onMounted, ref } from "vue";
+// import { toast } from 'vue3-toastify';
+import { useToast } from "vue-toastification";
 import DashLayout from "../components/DashLayout.vue";
 import { useStore } from "vuex";
 
+import axiosClient from "../axiosClient";
+
+const loading = ref(false);
+
 const store = useStore();
+const toast = useToast();
 
 const users = ref([]);
+const currentRole = computed(() => {
+  return store.state.user.role;
+});
 const departments = ref([]);
 
 // Modal state
@@ -202,6 +222,7 @@ const formData = ref({
 // Delete modal state
 const isDeleteModalOpen = ref(false);
 const userToDelete = ref(null);
+
 const deletingIndex = ref(null);
 
 const openModal = () => {
@@ -298,7 +319,9 @@ const handleSubmit = () => {
         closeModal();
         fetchy();
       } else {
-        toast(`${response}`);
+        toast.success("Success", {
+          timeout: 2000
+        });
       }
     });
   }
@@ -315,12 +338,15 @@ function handleSaving(user) {
     }).map(id => Number(id)); // Ensure all IDs are numbers to match checkbox values
   }
   user.departments = departmentIds;
-  console.log("Loooook: ", user);
+
   store.dispatch('updateUser', user).then((response) => {
     if (response && response.data) {
+      toast.success("Success", {
+        timeout: 2000
+      });
       fetchy();
     }
-  })
+  });
 }
 
 const confirmDelete = (index) => {
@@ -344,23 +370,53 @@ const handleDelete = () => {
           closeDeleteModal();
           fetchy();
         } else {
-          toast(`${response}`);
+          toast.success("Success", {
+            timeout: 2000
+          });
         }
       });
   }
 
 };
 
+function resetPassword(email) {
+  loading.value = true;
+  axiosClient
+    .post("/forgot-password", { email: email })
+    .then((response) => {
+      console.log("Response:", response.data);
+      toast.success("Success", {
+        timeout: 2000
+      });
+    })
+    .catch(() => {
+      toast.success("Failed", {
+        timeout: 2000
+      });
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+}
+
 onMounted(() => {
   fetchy();
 });
 
 async function fetchy() {
-  store.dispatch('getDepartments').then((response) => {
-    if (response && response.data) {
-      departments.value = response.data;
-    }
-  });
+  // store.dispatch('getDepartments').then((response) => {
+  //   if (response && response.data) {
+  //     departments.value = response.data;
+  //   }
+  // });
+  store.dispatch("getUser", { id: store.state.user.id })
+    .then((response) => {
+      if (response) {
+        departments.value = response;
+      }
+    }).catch((error) => {
+      console.log("This is an error", error);
+    })
   store.dispatch('getUsers').then((response) => {
     if (response && response.data) {
       users.value = response.data;
@@ -527,6 +583,11 @@ tbody tr:last-child td {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+.save-btn {
+  color: green;
+  border-color: rgba(0, 128, 0, 0.309);
+}
+
 .delete-btn:hover {
   background: rgba(239, 68, 68, 0.1);
   border-color: #ef4444;
@@ -666,7 +727,7 @@ tbody tr:last-child td {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--bg);
-  max-height: 200px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -778,6 +839,18 @@ tbody tr:last-child td {
   transition: all 0.2s ease;
   border: none;
   background: #ef4444;
+  color: white;
+}
+
+.btn-save {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: green;
   color: white;
 }
 

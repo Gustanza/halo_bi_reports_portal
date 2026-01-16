@@ -21,14 +21,14 @@
               </svg>
               Manage Departments
             </router-link>
-            <router-link v-if="role > 2" :to="{ name: 'Manage Users' }" @click="closeDropdown" class="dropdown-item">
+            <router-link v-if="role > 1" :to="{ name: 'Manage Users' }" @click="closeDropdown" class="dropdown-item">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M8 8a3 3 0 100-6 3 3 0 000 6z" />
                 <path d="M2 14c0-2 2-4 6-4s6 2 6 4" />
               </svg>
               Manage Users
             </router-link>
-            <div class="dropdown-divider" v-if="role > 2"></div>
+            <!-- <div class="dropdown-divider" v-if="role > 2"> </div> -->
             <button @click="handleLogout" class="dropdown-item logout-item">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M6 14H3a1 1 0 01-1-1V3a1 1 0 011-1h3M10 12l4-4-4-4M14 8H6" />

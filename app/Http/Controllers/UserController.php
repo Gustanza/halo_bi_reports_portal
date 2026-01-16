@@ -10,15 +10,87 @@ use Illuminate\Support\Facades\Password;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Department;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    // public function index()
+    // {
+    //     // $currentUser = auth()->user();
+
+    //     // $departmentIds = $currentUser->departments()->pluck('departments.id');
+
+    //     // $users = User::where('id', '!=', $currentUser->id)
+    //     // ->whereHas('departments', function ($query) use ($departmentIds) {
+    //     //     $query->whereIn('departments.id', $departmentIds);
+    //     // })->get();
+        
+    //     // return UserResource::collection($users);
+
+    //      $currentUser = auth()->user();
+
+    //      if ($currentUser->role > 2) {
+    //         $departmentIds = $currentUser->departments()->pluck('departments.id');
+    //         $users = User::where('id', '!=', $currentUser->id)
+    //         ->whereHas('departments', function ($query) use ($departmentIds) {
+    //             $query->whereIn('departments.id', $departmentIds);
+    //         })->get();
+            
+    //         return UserResource::collection($users);
+    //      }
+
+    //     $myDepartmentIds = $currentUser
+    //         ->departments()
+    //         ->pluck('departments.id');
+
+    //     $users = User::with(['departments' => function ($q) use ($myDepartmentIds) {
+    //             $q->whereIn('departments.id', $myDepartmentIds);
+    //         }])
+    //         ->whereKeyNot($currentUser->id)
+    //         ->whereHas('departments', function ($q) use ($myDepartmentIds) {
+    //             $q->whereIn('departments.id', $myDepartmentIds);
+    //         })
+    //         ->get();
+
+    //     return UserResource::collection($users);
+
+    // }
+
     public function index()
     {
-        return UserResource::collection(User::paginate());
+        $currentUser = auth()->user();
+
+        if ($currentUser->role > 2) {
+            $departmentIds = $currentUser->departments()->pluck('departments.id');
+            $users = User::where('id', '!=', $currentUser->id)
+                // ->where('role', '<=', $currentUser->role)
+                // ->whereHas('departments', function ($query) use ($departmentIds) {
+                //     $query->whereIn('departments.id', $departmentIds);
+                // })
+                ->get();
+            
+            return UserResource::collection($users);
+        }
+
+        $myDepartmentIds = $currentUser
+            ->departments()
+            ->pluck('departments.id');
+
+        $users = User::with(['departments' => function ($q) use ($myDepartmentIds) {
+                $q->whereIn('departments.id', $myDepartmentIds);
+            }])
+            ->whereKeyNot($currentUser->id)
+            ->where('role', '<=', $currentUser->role)
+            ->whereHas('departments', function ($q) use ($myDepartmentIds) {
+                $q->whereIn('departments.id', $myDepartmentIds);
+            })
+            ->get();
+
+        return UserResource::collection($users);
     }
 
     /**
@@ -46,6 +118,9 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        if ($user->role > 2) {
+            return response(Department::get());
+        }
         $deps =  $user->departments;
         return response($deps);
         // return new UserResource($user);
@@ -74,22 +149,26 @@ class UserController extends Controller
         return response($result, 203);
     }
 
-    public function sendResetLink(Request $request)
-    {
-        $request->validate([
-            "email" => "required|email|exists:users,email"
-        ]);
-        $status = Password::sendResetLink($request->only("email"));
-        return $status === Password::RESET_LINK_SENT ?
-            response()->json([
-                "error" => false,
-                "data" => "RESET LINK SENT",
-            ]): 
-            response()->json([
-                "error" => true,
-                "data" => "SHEET HAPPENED",
-            ]);
-    }
+  public function sendResetLink(Request $request)
+{
+    $request->validate([
+        "email" => "required|email|exists:users,email"
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+    
+    // Create token and store in database
+    $token = app('auth.password.broker')->createToken($user);
+    
+    // Optionally send email
+    Password::sendResetLink($request->only("email"));
+    
+    return response()->json([
+        "error" => false,
+        "email" => $request->email,
+        "token" => $token,
+    ]);
+}
 
 
 
