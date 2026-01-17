@@ -26,11 +26,11 @@
                 <input v-model="remember" type="checkbox" />
                 <span>Remember this device</span>
               </label>
-              <router-link :to="{ name: 'ForgotPassword' }">
+              <!-- <router-link :to="{ name: 'ForgotPassword' }">
                 <button type="button" class="link-button">
                   Forgot password?
                 </button>
-              </router-link>
+              </router-link> -->
             </div>
 
             <button class="primary-button" type="submit">

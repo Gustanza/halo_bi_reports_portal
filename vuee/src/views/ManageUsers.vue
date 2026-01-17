@@ -182,6 +182,39 @@
         </div>
       </div>
     </div>
+
+    <!-- Copy popup -->
+    <!-- Reset Link Modal -->
+    <div v-if="isResetLinkModalOpen" class="modal-overlay" @click="isResetLinkModalOpen = false">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>Password Reset Link</h3>
+          <button @click="isResetLinkModalOpen = false" class="close-btn">
+            <i data-lucide="x" class="icon"></i>
+          </button>
+        </div>
+
+        <div class="modal-form">
+          <div class="form-group">
+            <label>Reset Password URL</label>
+            <input type="text" :value="resetLink" readonly />
+            <small class="form-hint">
+              Copy and share this link with the user
+            </small>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" @click="isResetLinkModalOpen = false">
+              Close
+            </button>
+            <button type="button" class="btn-submit" @click="copyResetLink">
+              Copy Link
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </DashLayout>
 </template>
 
@@ -204,6 +237,10 @@ const currentRole = computed(() => {
   return store.state.user.role;
 });
 const departments = ref([]);
+// Reset password modal state
+const isResetLinkModalOpen = ref(false);
+const resetLink = ref("");
+
 
 // Modal state
 const isModalOpen = ref(false);
@@ -379,18 +416,45 @@ const handleDelete = () => {
 
 };
 
+// function resetPassword(email) {
+//   loading.value = true;
+//   axiosClient
+//     .post("/forgot-password", { email: email })
+//     .then((response) => {
+//       const token = response.data.token;
+//       toast.success("Success", {
+//         timeout: 2000
+//       });
+//     })
+//     .catch(() => {
+//       toast.success("Failed", {
+//         timeout: 2000
+//       });
+//     })
+//     .finally(() => {
+//       loading.value = false;
+//     });
+// }
+
 function resetPassword(email) {
   loading.value = true;
   axiosClient
     .post("/forgot-password", { email: email })
     .then((response) => {
-      console.log("Response:", response.data);
-      toast.success("Success", {
+      const token = response.data.token;
+
+      // 🔹 Build reset link
+      resetLink.value = `http://localhost:5173/reset-password?token=${token}&email=${email}`;
+
+      // 🔹 Open popup modal
+      isResetLinkModalOpen.value = true;
+
+      toast.success("Reset link generated", {
         timeout: 2000
       });
     })
     .catch(() => {
-      toast.success("Failed", {
+      toast.error("Failed to generate reset link", {
         timeout: 2000
       });
     })
@@ -398,6 +462,14 @@ function resetPassword(email) {
       loading.value = false;
     });
 }
+
+function copyResetLink() {
+  navigator.clipboard.writeText(resetLink.value).then(() => {
+    toast.success("Link copied to clipboard", { timeout: 2000 });
+  });
+}
+
+
 
 onMounted(() => {
   fetchy();
