@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
+
 
 class StoreUserRequest extends FormRequest
 {
@@ -11,7 +13,9 @@ class StoreUserRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        $user = $this->user();
+
+        return $user && $user->role > 2;
     }
 
     /**
