@@ -15,51 +15,86 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    // public function index()
+    public function roleOneUser(Request $request)
+    {
+        $currentUser = auth()->user();
+
+        if ($currentUser->role != 2) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Optional search term from frontend
+        $search = $request->query('q', ''); // use '' if nothing provided
+
+        $myDepartmentIds = $currentUser
+            ->departments()
+            ->pluck('departments.id');
+
+        $users = User::with('departments')
+            ->where('role', 1)
+            ->whereDoesntHave('departments', function ($q) use ($myDepartmentIds) {
+                $q->whereIn('departments.id', $myDepartmentIds);
+            })
+            ->when($search, function($query, $search) {
+                $query->where('email', 'like', $search . '%'); // search by starting letters
+            })
+            ->get();
+
+        return response()->json($users);
+    }
+
+
+    // public function roleOneUser()
     // {
-    //     // $currentUser = auth()->user();
+    //     $currentUser = auth()->user();
 
-    //     // $departmentIds = $currentUser->departments()->pluck('departments.id');
-
-    //     // $users = User::where('id', '!=', $currentUser->id)
-    //     // ->whereHas('departments', function ($query) use ($departmentIds) {
-    //     //     $query->whereIn('departments.id', $departmentIds);
-    //     // })->get();
-        
-    //     // return UserResource::collection($users);
-
-    //      $currentUser = auth()->user();
-
-    //      if ($currentUser->role > 2) {
-    //         $departmentIds = $currentUser->departments()->pluck('departments.id');
-    //         $users = User::where('id', '!=', $currentUser->id)
-    //         ->whereHas('departments', function ($query) use ($departmentIds) {
-    //             $query->whereIn('departments.id', $departmentIds);
-    //         })->get();
-            
-    //         return UserResource::collection($users);
-    //      }
+    //     if ($currentUser->role != 2) {
+    //         return response()->json(['error' => 'Unauthorized'], 403);
+    //     }
 
     //     $myDepartmentIds = $currentUser
     //         ->departments()
     //         ->pluck('departments.id');
 
-    //     $users = User::with(['departments' => function ($q) use ($myDepartmentIds) {
-    //             $q->whereIn('departments.id', $myDepartmentIds);
-    //         }])
-    //         ->whereKeyNot($currentUser->id)
-    //         ->whereHas('departments', function ($q) use ($myDepartmentIds) {
+    //     $users = User::with('departments')
+    //         ->where('role', 1)
+    //         ->whereDoesntHave('departments', function ($q) use ($myDepartmentIds) {
     //             $q->whereIn('departments.id', $myDepartmentIds);
     //         })
-    //         ->get();
+    //         ->when($search, function($query) use ($search) {
+    //             $query->where('email', 'LIKE', $search . '%');
+    //         })
+    //         ->limit(10)
+    //         ->get('id', 'email');
 
-    //     return UserResource::collection($users);
-
+    //     return response()->json($users);
     // }
 
+       public function addMember(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'email' => 'required|email|exists:users,email',
+                'departments' => 'required|array|min:1',
+                'departments.*' => 'exists:departments,id',
+            ]);
+
+            $user = User::where('email', $validated['email'])->firstOrFail();
+
+            $user->departments()->syncWithoutDetaching($validated['departments']);
+
+            return response()->json([
+                'message' => 'Member added to department(s) successfully',
+                'user' => $user->load('departments')
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
+        }
+    }
+    
     public function index()
     {
         $currentUser = auth()->user();

@@ -9,7 +9,9 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DepartmentReportsController;
 
 Route::middleware('auth:sanctum')->group(function(){
+    Route::get('/users/role1', [UserController::class, 'roleOneUser']);
     Route::resource('/users', UserController::class);
+    Route::post('/users/add-member', [UserController::class, 'addMember']);
     Route::delete('/dropUsers/{user}', [UserController::class, 'destroy']);
 
     Route::resource('/departments', DepartmentController::class);

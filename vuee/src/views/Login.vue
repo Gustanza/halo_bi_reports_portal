@@ -26,11 +26,6 @@
                 <input v-model="remember" type="checkbox" />
                 <span>Remember this device</span>
               </label>
-              <!-- <router-link :to="{ name: 'ForgotPassword' }">
-                <button type="button" class="link-button">
-                  Forgot password?
-                </button>
-              </router-link> -->
             </div>
 
             <button class="primary-button" type="submit">
@@ -53,6 +48,7 @@
 </template>
 
 <script setup>
+import { useToast } from "vue-toastification";
 import { ref, onMounted } from "vue";
 import store from "../store";
 import { useRouter } from "vue-router";
@@ -60,6 +56,7 @@ import { useRouter } from "vue-router";
 const remember = ref(false);
 const error = ref("");
 const router = useRouter();
+const toast = useToast();
 
 const user = ref({
   email: "",
@@ -70,7 +67,10 @@ const handleSubmit = () => {
   error.value = "";
   store.dispatch("login", user.value).then((result) => {
     if (result && result.user) {
-      router.push({ name: "Departments" })
+      toast.success(` ${user.value.email} login successfully`, {
+            timeout: 2000
+          });
+      router.push({ name: "Departments" })      
     }
   });
 

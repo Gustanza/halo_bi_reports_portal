@@ -7,12 +7,12 @@
             <h2 class="page-title">Manage Users</h2>
             <p class="page-subtitle">View and manage all users in the system</p>
           </div>
-          <button @click="openModal" class="add-btn">
+          <button   v-if="currentRole == 2 || currentRole == 3" @click="openModal" class="add-btn">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            Add New User
+            {{ currentRole == 3 ? 'Add New User' : 'Add Member' }}
           </button>
         </div>
 
@@ -28,7 +28,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(user, index) in users" :key="index">
+              <tr v-for="(user, index, ) in users" :key="index">
                 <td>{{ user.name }}</td>
                 <td>
                   <a :href="`mailto:${user.email}`" class="link">{{ user.email }}</a>
@@ -105,22 +105,34 @@
     <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ isEditMode ? "Assign Department(s)" : "Add New User" }}</h3>
+          <h3 v-if="currentRole == 2 || currentRole == 3">{{ isEditMode ? "Assign Department(s)" : (currentRole == 3) ? "Add New User" : "Add Member" }}</h3>
           <button @click="closeModal" class="close-btn">
             <i data-lucide="x" class="icon"></i>
           </button>
         </div>
         <form @submit.prevent="handleSubmit" class="modal-form">
-          <div v-if="!isEditMode" class="form-group">
+          <div v-if="currentRole == 3 &&  !isEditMode" class="form-group">
             <label for="name">Full Name *</label>
             <input id="name" v-model="formData.name" type="text" placeholder="Enter full name" required />
           </div>
-          <div v-if="!isEditMode" class="form-group">
+          <div v-if="currentRole == 3 && !isEditMode" class="form-group">
             <label for="email">Email *</label>
             <input id="email" v-model="formData.email" type="email" placeholder="Enter email address" required />
             <small class="form-hint">Enter a valid email address</small>
           </div>
-          <div v-if="!isEditMode" class="form-group">
+          <div v-if="currentRole == 2 && !isEditMode" class="form-group">
+            <label>Email *</label>
+            <input type="text" v-model="emailSearch" placeholder="Start typing email..." @input="searchRoleOneUsers" @focus="showSuggestions = true" />
+            <ul v-if="showSuggestions && emailSuggestions.length" class="suggestions">
+              <li v-for="user in emailSuggestions" :key="user.id" @click="selectEmail(user.email)" >
+                {{ user.email }}
+              </li>
+            </ul>
+            <small class="form-hint">Type at least 2 characters</small>
+          </div>
+
+
+          <div v-if="currentRole ==3 && !isEditMode" class="form-group">
             <label for="role">User Role *</label>
             <select id="role" v-model="formData.role" required>
               <option :value="0">--- Select Role ---</option>
@@ -141,7 +153,8 @@
             </div>
             <small class="form-hint">You can select multiple departments (check all that apply)</small>
           </div>
-          <div v-if="!isEditMode" class="form-group">
+
+          <div v-if="currentRole == 3 && !isEditMode" class="form-group">
             <label for="password">Password *</label>
             <input id="created_at" v-model="formData.password" type="password" placeholder="Enter password" required />
             <small class="form-hint">Enter password with atleast 8 mixed characters</small>
@@ -150,7 +163,7 @@
           <div class="form-actions">
             <button type="button" @click="closeModal" class="btn-cancel">Cancel</button>
             <button type="submit" class="btn-submit">
-              {{ isEditMode ? "Update User" : "Add User" }}
+              {{ isEditMode ? "Update User" : currentRole == 2 ? "Add Member" : "Add User" }}
             </button>
 
           </div>
@@ -168,7 +181,7 @@
         </div>
         <div class="delete-modal-body">
           <p>
-            Are you sure you want to delete <strong>{{ userToDelete?.name }}</strong>?
+            Are you sure you want to delete <strong>{{ userToDelete?.email }}</strong>?
           </p>
           <p class="delete-warning">This action cannot be undone.</p>
           <div class="delete-modal-actions">
@@ -219,6 +232,9 @@
 </template>
 
 <script setup>
+
+import axios from "axios"; 
+
 import { computed, onMounted, ref } from "vue";
 // import { toast } from 'vue3-toastify';
 import { useToast } from "vue-toastification";
@@ -232,7 +248,12 @@ const loading = ref(false);
 const store = useStore();
 const toast = useToast();
 
+const emailSearch = ref("");
+const emailSuggestions = ref([]);
+const showSuggestions = ref(false);
+const selectedEmail = ref([]);
 const users = ref([]);
+const roleOneUsers = ref([]); 
 const currentRole = computed(() => {
   return store.state.user.role;
 });
@@ -271,35 +292,11 @@ const openModal = () => {
     name: "",
     email: "",
     created_at: "",
-    role: 0,
+    role: 1,
     departments: [],
     password: "",
   };
 };
-
-// const editUser = (index) => {
-//   isEditMode.value = true;
-//   editingIndex.value = index;
-//   const user = users.value[index];
-
-//   // // Normalize departments to array of IDs (handle both object arrays and ID arrays)
-//   // let departmentIds = [];
-//   // if (user.departments && Array.isArray(user.departments)) {
-//   //   departmentIds = user.departments.map(dept => {
-//   //     // If department is an object, extract the id; otherwise use the value directly
-//   //     return typeof dept === 'object' && dept !== null ? dept.id : dept;
-//   //   }).map(id => Number(id)); // Ensure all IDs are numbers to match checkbox values
-//   // }
-
-//   formData.value = {
-//     id: user.id,
-//     name: user.name || "",
-//     email: user.email || "",
-//     departments: user.departments,
-//     role: user.role || 0,
-//   };
-//   isModalOpen.value = true;
-// };
 
 const editUser = (index) => {
   isEditMode.value = true;
@@ -341,6 +338,48 @@ const closeModal = () => {
   };
 };
 
+const addMember = async () => {
+  try {
+    await axiosClient.post("/users/add-member", {
+      email: selectedEmail.value,
+      departments: formData.value.departments,
+    });
+    toast.success("Member added successfully", { timeout: 2000});
+    closeModal();
+    fetchy();
+  } catch (error) {
+    toast.error("Failed to add member", { timeout: 2000});
+    console.error(error);
+  }
+};
+
+const searchRoleOneUsers = async () => {
+  if (emailSearch.value.length < 2) {
+    emailSuggestions.value = [];
+    showSuggestions.value = false;
+    return;
+  }
+
+  try {
+    const res = await axiosClient.get("/users/role1", {
+      params: { q: emailSearch.value }
+    });
+
+    emailSuggestions.value = res.data;
+    showSuggestions.value = true;
+  } catch (err) {
+    console.error("Search failed", err);
+  }
+};
+
+const selectEmail = (email) => {
+  selectedEmail.value = email;
+  emailSearch.value = email;
+  showSuggestions.value = false;
+};
+
+
+
 const handleSubmit = () => {
   // return console.log("Come look at this:", formData.value);
   if (isEditMode.value) {
@@ -349,16 +388,27 @@ const handleSubmit = () => {
         closeModal();
         fetchy();
       }
-    })
-  } else {
+    });
+    return;
+  } 
+  
+  if (currentRole.value == 2) {
+    addMember();
+    return;
+  }
+
+  if (currentRole.value == 3) {
     store.dispatch("register", formData.value).then((response) => {
       if (response && response.user) {
+        toast.success(` ${formData.value.email} registered successfully`, {
+            timeout: 2000
+          });
         closeModal();
         fetchy();
       } else {
-        toast.success("Success", {
-          timeout: 2000
-        });
+        toast.error(`Failed to register ${formData.value.email}`, {
+            timeout: 2000
+          });
       }
     });
   }
@@ -378,9 +428,9 @@ function handleSaving(user) {
 
   store.dispatch('updateUser', user).then((response) => {
     if (response && response.data) {
-      toast.success("Success", {
-        timeout: 2000
-      });
+      toast.success(`${userToDelete.value.email} deleted successfully`, {
+            timeout: 2000
+          });
       fetchy();
     }
   });
@@ -404,10 +454,13 @@ const handleDelete = () => {
     store.dispatch("dropUser", users.value[deletingIndex.value])
       .then((response) => {
         if (response) {
+          toast.success(`${userToDelete.value.email} deleted successfully`, {
+            timeout: 2000
+          });
           closeDeleteModal();
           fetchy();
         } else {
-          toast.success("Success", {
+          toast.error(`Failed to delete ${userToDelete.value.email}`, {
             timeout: 2000
           });
         }
@@ -415,26 +468,6 @@ const handleDelete = () => {
   }
 
 };
-
-// function resetPassword(email) {
-//   loading.value = true;
-//   axiosClient
-//     .post("/forgot-password", { email: email })
-//     .then((response) => {
-//       const token = response.data.token;
-//       toast.success("Success", {
-//         timeout: 2000
-//       });
-//     })
-//     .catch(() => {
-//       toast.success("Failed", {
-//         timeout: 2000
-//       });
-//     })
-//     .finally(() => {
-//       loading.value = false;
-//     });
-// }
 
 function resetPassword(email) {
   loading.value = true;
@@ -469,18 +502,28 @@ function copyResetLink() {
   });
 }
 
-
-
-onMounted(() => {
+onMounted(async () => {
+  console.log("🔍 Current Role:", currentRole.value);
+  
+  // Fetch role 1 users for dropdown (only for role 2)
+  if (currentRole.value == 2) {
+    try {
+      const res = await axiosClient.get("/users/role1");
+      console.log("Role 1 users fetched:", res.data);
+      console.log("Number of users:", res.data.length);
+      roleOneUsers.value = res.data;
+    } catch (err) {
+      console.error("Failed to fetch role 1 users:", err);
+      console.error("Error details:", err.response?.data);
+    }
+  }
+  
+  // Fetch main users list for the table (all roles)
   fetchy();
 });
 
 async function fetchy() {
-  // store.dispatch('getDepartments').then((response) => {
-  //   if (response && response.data) {
-  //     departments.value = response.data;
-  //   }
-  // });
+
   store.dispatch("getUser", { id: store.state.user.id })
     .then((response) => {
       if (response) {
@@ -962,6 +1005,27 @@ tbody tr:last-child td {
 .delete-warning {
   color: var(--muted);
   font-size: 13px;
+}
+
+.suggestions {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  border: 1px solid #ccc;
+  max-height: 150px;
+  overflow-y: auto;
+  background: white;
+  z-index: 1000;
+}
+
+.suggestions li {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.suggestions li:hover {
+  background: var(--muted);
+  color: var(--card);
 }
 
 @media (max-width: 768px) {
