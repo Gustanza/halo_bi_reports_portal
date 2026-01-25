@@ -2,7 +2,8 @@
   <div class="layout">
     <header>
       <div class="header-inner">
-        <router-link :to="{ name: 'Departments' }">
+        <router-link :to="{ name: 'Departments' }" class="brand">
+          <img :src="logo" alt="Halotel Logo" class="app-logo" />
           <h1><span>BI</span> Reports</h1>
         </router-link>
         <div class="user-menu-wrapper">
@@ -52,13 +53,146 @@
 
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { useStore } from "vuex";
+import { useToast } from "vue-toastification";
 
+// Import Logo from assets
+import logo from '../assets/halotel-logo.png';
+// import logo from '@/assets/halotel-logo.png';
+
+const store = useStore();
+const router = useRouter();
+const toast = useToast();
+
+const isDropdownOpen = ref(false);
+const toggleDropdown = () => { isDropdownOpen.value = !isDropdownOpen.value; };
+const closeDropdown = () => { isDropdownOpen.value = false; };
+
+const username = computed(() => store.state.user.name || "User");
+const role = computed(() => Number(store.state.user.role || 0));
+
+// -------------------
+// Logout Function
+// -------------------
+const handleLogout = () => {
+  // Clear session storage
+  sessionStorage.clear();
+  // Clear session storage
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('name');
+  sessionStorage.removeItem('role');
+
+  // Clear store state
+  store.state.user.token = null;
+  store.state.user.name = null;
+  store.state.user.role = null;
+
+  // Clear Vuex store
+  store.commit("logout");
+
+  // Close dropdown and show toast
+  closeDropdown();
+  toast.success(`${username.value} logged out successfully`, { timeout: 2000 });
+
+  // Redirect after a short delay
+  setTimeout(() => {
+    router.push({ name: "Login" });
+  }, 500);
+};
+
+// -------------------
+// Dropdown outside click
+// -------------------
+const handleClickOutside = (event) => {
+  if (isDropdownOpen.value && !event.target.closest(".user-menu-wrapper")) {
+    closeDropdown();
+  }
+};
+
+// -------------------
+// Inactivity Auto Logout
+// -------------------
+let inactivityTimer;
+const LOGOUT_TIME = 1 * 60 * 1000; // 5 minutes
+
+const autoLogout = () => {
+  sessionStorage.clear();
+  store.state.user.token = null;
+  store.state.user.name = null;
+  store.state.user.role = null;
+
+  localStorage.setItem("logout", Date.now());
+
+  toast.info("Logged out due to inactivity");
+
+  // Immediately redirect
+  router.replace({ name: "Login" });
+};
+// const autoLogout = () => {
+//   // Clear session and store
+//   sessionStorage.clear();
+//   store.commit("logout");
+
+//   // Notify other tabs
+//   localStorage.setItem("logout", Date.now());
+
+//   toast.info("Logged out due to inactivity");
+//   router.push({ name: "Login" });
+// };
+
+// Reset timer on activity
+const resetTimer = () => {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(autoLogout, LOGOUT_TIME);
+};
+
+// Activity events to listen for
+const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+
+// Listen for logout from other tabs
+const storageListener = (event) => {
+  if (event.key === "logout") {
+    sessionStorage.clear();
+    store.commit("logout");
+    toast.info("Logged out from another tab");
+    router.push({ name: "Login" });
+  }
+};
+
+// -------------------
+// Lifecycle hooks
+// -------------------
+onMounted(() => {
+  // Dropdown outside click
+  document.addEventListener("click", handleClickOutside);
+
+  // Activity detection
+  activityEvents.forEach((e) => window.addEventListener(e, resetTimer));
+  window.addEventListener("storage", storageListener);
+
+  // Start inactivity timer
+  resetTimer();
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+  activityEvents.forEach((e) => window.removeEventListener(e, resetTimer));
+  window.removeEventListener("storage", storageListener);
+  clearTimeout(inactivityTimer);
+});
+</script>
+
+<!-- <script setup>
+import { useToast } from "vue-toastification";
 import { useStore } from "vuex";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 
 const store = useStore();
 const router = useRouter();
+const toast = useToast();
 
 const isDropdownOpen = ref(false);
 
@@ -79,6 +213,8 @@ const closeDropdown = () => {
 };
 
 const handleLogout = () => {
+  const name = username.value || 'User';
+
   // Clear session storage
   sessionStorage.removeItem('token');
   sessionStorage.removeItem('name');
@@ -91,7 +227,12 @@ const handleLogout = () => {
 
   // Close dropdown and redirect to login
   closeDropdown();
-  router.push({ name: 'Login' });
+  toast.success(` ${name} logged out successfully`, {
+            timeout: 2000
+          });
+  setTimeout(() =>{
+    router.push({name: 'Login'});
+  }, 3000);
 };
 
 // Close dropdown when clicking outside
@@ -109,7 +250,55 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside);
 });
 
-</script>
+let inactivityTimer;
+const LOGOUT_TIME = 2 * 60 * 1000;
+
+// Auto Logout function
+const autoLogout = () => {
+  store.commit("logout");
+  sessionStorage.clear();
+
+  // Notifying other tab
+  localStorage.setItem("logout", Date.now());
+
+  toast.info("Logged out due to inactivity");
+  router.push({ name: "Login"});
+};
+
+// Reset timer on activity
+const resetTimer = () => {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(autoLogout, LOGOUT_TIME);
+};
+
+// Listen to activity event 
+
+const activityEvents = ["mousemove", "keydown", "click", "scroll"];
+
+// Listen for logout from other tabs
+const storageListener = (event) => {
+  if (event.key === "logout") {
+    store.commit("logout");
+    sessionStorage.clear();
+    toast.info("Logged out from another tab");
+    router.push ({ name: "Login"});
+  }
+};
+
+onMounted(() => {
+  activityEvents.forEach((event) => window.addEventListener(event,resetTimer));
+  window.addEventListener("storage", storageListener);
+
+  resetTimer();
+});
+
+onUnmounted(() => {
+  activityEvents.forEach((event) => window.removeEventListener(event, resetTimer));
+  window.removeEventListener("storage", storageListener);
+  clearTimeout(inactivityTimer);
+});
+
+</script> -->
 
 <style scoped>
 .user-menu-wrapper {
@@ -153,6 +342,36 @@ onUnmounted(() => {
   z-index: 1000;
   animation: slideDown 0.2s ease;
 }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;               /* space between logo and text */
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Logo styling */
+.app-logo {
+  height: 100px;            /* control size here */
+  width: auto;
+  object-fit: contain;
+  background: white;       /* since image is not transparent */
+  padding: 4px;            /* optional: clean look */
+  border-radius: 6px;      /* optional */
+}
+
+/* Title */
+.brand h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1;
+}
+
+.brand h1 span {
+  color: var(--halotel-orange);
+}
+
 
 @keyframes slideDown {
   from {

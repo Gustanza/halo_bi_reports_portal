@@ -147,6 +147,7 @@
 </template>
 
 <script setup>
+import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import DashLayout from "../components/DashLayout.vue";
 import { useStore } from "vuex";
@@ -157,6 +158,7 @@ const props = defineProps({
 });
 
 const store = useStore();
+const toast = useToast();
 
 // Placeholder data structure: replace with real data or API calls
 
@@ -229,16 +231,18 @@ const handleSubmit = () => {
     store.dispatch("createReport", formData.value)
       .then((response) => {
         if (response && response.data) {
+          toast.success(`${formData.value.name} report added successfully`, { timeout: 2000 });
           fetchy();
           closeModal();
         }
       }).catch((error) => {
-        console.log("This is an error", error);
+        toast.error(`Failed to add ${formData.value.name} report`, { timeout: 2000 });
       });
   } else {
     store.dispatch("editReport", formData.value)
       .then((response) => {
         if (response && response.data) {
+          toast.success(`${formData.value.name} report updated successfully`, { timeout: 2000 });
           fetchy();
           closeModal();
         }
@@ -263,15 +267,20 @@ const closeDeleteModal = () => {
 };
 
 const handleDelete = () => {
-  store.dispatch("dropReport", reports.value[deletingIndex.value])
-    .then((response) => {
-      if (response) {
-        fetchy();
-        closeDeleteModal();
-      }
-    }).catch((error) => {
-      console.log("This is an error", error);
-    });
+  if (deletingIndex.value !== null && reportToDelete.value) {
+    store.dispatch("dropReport", reports.value[deletingIndex.value])
+      .then((response) => {
+        if (response) {
+          const name = reportToDelete.value?.name || "Report";
+          toast.success(`${name} report deleted successfully`, { timeout: 2000 });
+          closeDeleteModal();
+          fetchy(); // refresh table
+        }
+      })
+      .catch((error) => {
+        toast.error("Failed to delete department");
+      });
+  }
 };
 
 onMounted(() => {

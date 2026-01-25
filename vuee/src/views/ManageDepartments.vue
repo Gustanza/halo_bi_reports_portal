@@ -132,12 +132,15 @@
 </template>
 
 <script setup>
+import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import DashLayout from "../components/DashLayout.vue";
 import { useStore } from "vuex";
 
 
 const store = useStore();
+
+const toast = useToast();
 
 // Make departments reactive
 const departments = ref([]);
@@ -208,6 +211,7 @@ const handleSubmit = () => {
         store.dispatch("createDepartment", formData.value)
             .then((response) => {
                 if (response && response.data) {
+                    toast.success(`${formData.value.name} created successfully`, { timeout: 2000 });
                     closeModal();
                     fetchy();
                 }
@@ -218,6 +222,7 @@ const handleSubmit = () => {
         store.dispatch("updateDepartment", formData.value)
             .then((response) => {
                 if (response && response.data) {
+                    toast.success(`${formData.value.name} updated successfully`, { timeout: 2000 });
                     closeModal();
                     fetchy();
                 }
@@ -239,20 +244,21 @@ const closeDeleteModal = () => {
     departmentToDelete.value = null;
     deletingIndex.value = null;
 };
-
 const handleDelete = () => {
-    if (deletingIndex.value !== null) {
-        store.dispatch("deleteDepartment", departments.value[deletingIndex.value])
-            .then((response) => {
-                if (response) {
-                    closeModal();
-                    fetchy();
-                }
-            }).catch((error) => {
-
-            });
-    }
-    closeDeleteModal();
+  if (deletingIndex.value !== null && departmentToDelete.value) {
+    store.dispatch("deleteDepartment", departments.value[deletingIndex.value])
+      .then((response) => {
+        if (response) {
+          const name = departmentToDelete.value?.name || "Department";
+          toast.success(`${name} deleted successfully`, { timeout: 2000 });
+          closeDeleteModal();
+          fetchy(); // refresh table
+        }
+      })
+      .catch((error) => {
+        toast.error("Failed to delete department");
+      });
+  }
 };
 
 onMounted(() => {

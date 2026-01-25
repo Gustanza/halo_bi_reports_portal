@@ -4,6 +4,8 @@
       <div class="auth-wrapper">
         <div class="auth-card">
           <div class="auth-header">
+             <!-- Logo -->
+              <img :src="logo" alt="Halotel Logo" class="app-logo" />
             <h2>Sign in</h2>
             <p class="auth-subtitle">
               Access your BI dashboards and reports.
@@ -52,6 +54,8 @@ import { useToast } from "vue-toastification";
 import { ref, onMounted } from "vue";
 import store from "../store";
 import { useRouter } from "vue-router";
+
+import logo from '../assets/halotel-logo.png';
 
 const remember = ref(false);
 const error = ref("");
@@ -154,6 +158,15 @@ main {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+/* Center the header content */
+.auth-header .app-logo {
+  display: block;
+  margin: 0 auto 12px auto; /* centers horizontally and adds space below */
+  width: 120px; /* adjust size as needed */
+  height: auto;
+  object-fit: contain;
 }
 
 .auth-card {
