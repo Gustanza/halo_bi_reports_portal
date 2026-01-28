@@ -75,6 +75,10 @@ const handleSubmit = () => {
             timeout: 2000
           });
       router.push({ name: "Departments" })      
+    } else {
+      toast.error("Invalid email or password", {
+        timeout:2000
+      });
     }
   });
 
