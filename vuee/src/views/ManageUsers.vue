@@ -7,7 +7,7 @@
             <h2 class="page-title">Manage Users</h2>
             <p class="page-subtitle">View and manage all users in the system</p>
           </div>
-          <button   v-if="currentRole == 2 || currentRole == 3" @click="openModal" class="add-btn">
+          <button v-if="currentRole == 2 || currentRole == 3" @click="openModal" class="add-btn">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
               stroke="currentColor" class="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -105,13 +105,14 @@
     <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3 v-if="currentRole == 2 || currentRole == 3">{{ isEditMode ? "Assign Department(s)" : (currentRole == 3) ? "Add New User" : "Add Member" }}</h3>
+          <h3 v-if="currentRole == 2 || currentRole == 3">{{ isEditMode ? "Assign Department(s)" : (currentRole == 3) ?
+            "Add New User" : "Add Member" }}</h3>
           <button @click="closeModal" class="close-btn">
             <i data-lucide="x" class="icon"></i>
           </button>
         </div>
         <form @submit.prevent="handleSubmit" class="modal-form">
-          <div v-if="currentRole == 3 &&  !isEditMode" class="form-group">
+          <div v-if="currentRole == 3 && !isEditMode" class="form-group">
             <label for="name">Full Name *</label>
             <input id="name" v-model="formData.name" type="text" placeholder="Enter full name" required />
           </div>
@@ -122,9 +123,10 @@
           </div>
           <div v-if="currentRole == 2 && !isEditMode" class="form-group">
             <label>Email *</label>
-            <input type="text" v-model="emailSearch" placeholder="Start typing email..." @input="searchRoleOneUsers" @focus="showSuggestions = true" />
+            <input type="text" v-model="emailSearch" placeholder="Start typing email..." @input="searchRoleOneUsers"
+              @focus="showSuggestions = true" />
             <ul v-if="showSuggestions && emailSuggestions.length" class="suggestions">
-              <li v-for="user in emailSuggestions" :key="user.id" @click="selectEmail(user.email)" >
+              <li v-for="user in emailSuggestions" :key="user.id" @click="selectEmail(user.email)">
                 {{ user.email }}
               </li>
             </ul>
@@ -132,7 +134,7 @@
           </div>
 
 
-          <div v-if="currentRole ==3 && !isEditMode" class="form-group">
+          <div v-if="currentRole == 3 && !isEditMode" class="form-group">
             <label for="role">User Role *</label>
             <select id="role" v-model="formData.role" required>
               <option :value="0">--- Select Role ---</option>
@@ -232,9 +234,6 @@
 </template>
 
 <script setup>
-
-import axios from "axios"; 
-
 import { computed, onMounted, ref } from "vue";
 // import { toast } from 'vue3-toastify';
 import { useToast } from "vue-toastification";
@@ -253,7 +252,7 @@ const emailSuggestions = ref([]);
 const showSuggestions = ref(false);
 const selectedEmail = ref([]);
 const users = ref([]);
-const roleOneUsers = ref([]); 
+const roleOneUsers = ref([]);
 const currentRole = computed(() => {
   return store.state.user.role;
 });
@@ -344,11 +343,11 @@ const addMember = async () => {
       email: selectedEmail.value,
       departments: formData.value.departments,
     });
-    toast.success("Member added successfully", { timeout: 2000});
+    toast.success("Member added successfully", { timeout: 2000 });
     closeModal();
     fetchy();
   } catch (error) {
-    toast.error("Failed to add member", { timeout: 2000});
+    toast.error("Failed to add member", { timeout: 2000 });
     console.error(error);
   }
 };
@@ -390,8 +389,8 @@ const handleSubmit = () => {
       }
     });
     return;
-  } 
-  
+  }
+
   if (currentRole.value == 2) {
     addMember();
     return;
@@ -401,14 +400,14 @@ const handleSubmit = () => {
     store.dispatch("register", formData.value).then((response) => {
       if (response && response.user) {
         toast.success(` ${formData.value.email} registered successfully`, {
-            timeout: 2000
-          });
+          timeout: 2000
+        });
         closeModal();
         fetchy();
       } else {
         toast.error(`Failed to register ${formData.value.email}`, {
-            timeout: 2000
-          });
+          timeout: 2000
+        });
       }
     });
   }
@@ -429,8 +428,8 @@ function handleSaving(user) {
   store.dispatch('updateUser', user).then((response) => {
     if (response && response.data) {
       toast.success(`${userToDelete.value.email} deleted successfully`, {
-            timeout: 2000
-          });
+        timeout: 2000
+      });
       fetchy();
     }
   });
@@ -504,7 +503,7 @@ function copyResetLink() {
 
 onMounted(async () => {
   console.log("🔍 Current Role:", currentRole.value);
-  
+
   // Fetch role 1 users for dropdown (only for role 2)
   if (currentRole.value == 2) {
     try {
@@ -517,7 +516,7 @@ onMounted(async () => {
       console.error("Error details:", err.response?.data);
     }
   }
-  
+
   // Fetch main users list for the table (all roles)
   fetchy();
 });

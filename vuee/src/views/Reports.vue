@@ -4,7 +4,7 @@
       <main>
         <div class="page-header">
           <div>
-            <h2 class="page-title">{{ name ?? 'Title goes here' }}</h2>
+            <h2 class="page-title">{{ name }} Reports</h2>
             <p class="page-subtitle">
               {{ pageSubtitle }}
             </p>
@@ -75,6 +75,7 @@
               </tr>
             </tbody>
           </table>
+          <TailwindPagination :data="laravelData" @pagination-change-page="getResults" />
         </div>
       </main>
     </div>
@@ -151,6 +152,16 @@ import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import DashLayout from "../components/DashLayout.vue";
 import { useStore } from "vuex";
+import { TailwindPagination } from 'laravel-vue-pagination';
+
+// Pagination Stuff
+const laravelData = ref({});
+
+const getResults = async (page = 1) => {
+  const response = await fetch(`https://example.com/results?page=${page}`);
+  laravelData.value = await response.json();
+}
+// Pagination Stuff
 
 const props = defineProps({
   name: String,
