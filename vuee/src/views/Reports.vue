@@ -76,18 +76,7 @@
             </tbody>
           </table>
         </div>
-        <div class="py-2">
-          <!-- <button class="inline-flex items-center gap-2 rounded-xl
-              bg-gradient-to-r from-orange-500 to-amber-500
-              px-5 py-2.5 text-sm font-semibold text-white
-              shadow-md shadow-orange-500/20
-              transition-all duration-200
-              hover:from-orange-400 hover:to-amber-400 hover:shadow-orange-500/40
-              focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
-              active:scale-95
-              disabled:opacity-60 disabled:cursor-not-allowed">
-            Save
-          </button> -->
+        <div class="pagination-container">
           <TailwindPagination :data="laravelData" @pagination-change-page="fetchy" />
         </div>
       </main>
@@ -306,11 +295,12 @@ onMounted(() => {
 });
 
 function fetchy(page = 1) {
-  store.dispatch("getDepartmentReports", props.id)
+  const id = props.id;
+  store.dispatch("getDepartmentReports", { id, page })
     .then((response) => {
       if (response && response.data) {
-        reports.value = response.data;
-        laravelData.value = response;
+        reports.value = response.data.data;
+        laravelData.value = response.data;
       }
     }).catch((error) => {
       console.log("This is an error", error);
@@ -785,6 +775,126 @@ footer {
   .modal-header,
   .modal-form {
     padding: 20px;
+  }
+
+}
+
+/* Pagination Container */
+.pagination-container {
+  padding: 24px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Deep selectors to style the TailwindPagination component */
+:deep(.pagination) {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  align-items: center;
+}
+
+:deep(.pagination li) {
+  display: inline-block;
+}
+
+/* Pagination buttons and links */
+:deep(.pagination li a),
+:deep(.pagination li span) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+/* Hover state */
+:deep(.pagination li a:hover) {
+  background: rgba(249, 115, 22, 0.1);
+  border-color: var(--halotel-orange);
+  color: var(--halotel-orange);
+  transform: translateY(-1px);
+}
+
+/* Active/Current page */
+:deep(.pagination li.active span),
+:deep(.pagination li.active a) {
+  background: var(--halotel-orange);
+  border-color: var(--halotel-orange);
+  color: white;
+  font-weight: 600;
+  cursor: default;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+/* Disabled state (Previous/Next when not available) */
+:deep(.pagination li.disabled span),
+:deep(.pagination li.disabled a) {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: var(--card);
+  color: var(--muted);
+}
+
+/* Previous and Next buttons */
+:deep(.pagination li:first-child a),
+:deep(.pagination li:last-child a) {
+  font-weight: 500;
+  padding: 0 16px;
+}
+
+/* Dots/Ellipsis */
+:deep(.pagination li span.dots) {
+  border: none;
+  background: transparent;
+  cursor: default;
+  color: var(--muted);
+}
+
+/* Focus state for accessibility */
+:deep(.pagination li a:focus),
+:deep(.pagination li span:focus) {
+  outline: 2px solid var(--halotel-orange);
+  outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .pagination-container {
+    padding: 16px 0;
+    overflow-x: auto;
+  }
+
+  :deep(.pagination) {
+    gap: 4px;
+  }
+
+  :deep(.pagination li a),
+  :deep(.pagination li span) {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  :deep(.pagination li:first-child a),
+  :deep(.pagination li:last-child a) {
+    padding: 0 12px;
   }
 }
 </style>

@@ -107,10 +107,10 @@ const store = createStore({
         },
 
         // reports thingies
-        getDepartmentReports({ commit }, deptId) {
-            return axiosClient.get(`/spreports/${deptId}/reports`)
+        getDepartmentReports({ commit }, params) {
+            return axiosClient.get(`/spreports/${params.id}/reports?page=${params.page}`)
                 .then((response) => {
-                    return response.data;
+                    return response;
                 }).catch((error) => {
                     return error;
                 });
