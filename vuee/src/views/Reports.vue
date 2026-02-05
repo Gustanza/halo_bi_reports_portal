@@ -75,7 +75,20 @@
               </tr>
             </tbody>
           </table>
-          <TailwindPagination :data="laravelData" @pagination-change-page="getResults" />
+        </div>
+        <div class="py-2">
+          <!-- <button class="inline-flex items-center gap-2 rounded-xl
+              bg-gradient-to-r from-orange-500 to-amber-500
+              px-5 py-2.5 text-sm font-semibold text-white
+              shadow-md shadow-orange-500/20
+              transition-all duration-200
+              hover:from-orange-400 hover:to-amber-400 hover:shadow-orange-500/40
+              focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2
+              active:scale-95
+              disabled:opacity-60 disabled:cursor-not-allowed">
+            Save
+          </button> -->
+          <TailwindPagination :data="laravelData" @pagination-change-page="fetchy" />
         </div>
       </main>
     </div>
@@ -156,11 +169,6 @@ import { TailwindPagination } from 'laravel-vue-pagination';
 
 // Pagination Stuff
 const laravelData = ref({});
-
-const getResults = async (page = 1) => {
-  const response = await fetch(`https://example.com/results?page=${page}`);
-  laravelData.value = await response.json();
-}
 // Pagination Stuff
 
 const props = defineProps({
@@ -175,7 +183,6 @@ const toast = useToast();
 
 // Make reports reactive
 const reports = ref([]);
-
 const pageTitle = computed(() => `${props.name} Reports`);
 const pageSubtitle = computed(
   () => `View and access all reports for ${props.name}`,
@@ -298,11 +305,12 @@ onMounted(() => {
   fetchy();
 });
 
-function fetchy() {
+function fetchy(page = 1) {
   store.dispatch("getDepartmentReports", props.id)
     .then((response) => {
       if (response && response.data) {
         reports.value = response.data;
+        laravelData.value = response;
       }
     }).catch((error) => {
       console.log("This is an error", error);

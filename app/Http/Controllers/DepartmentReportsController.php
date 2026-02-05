@@ -13,8 +13,9 @@ class DepartmentReportsController extends Controller
      */
     public function index(Department $department)
     {
-        $reports = $department->reports;
-        return ReportResource::collection($reports);
+        // $reports = $department->reports;
+        // return ReportResource::collection($reports);
+        return $department->reports()->paginate(1);
     }
 
     /**
