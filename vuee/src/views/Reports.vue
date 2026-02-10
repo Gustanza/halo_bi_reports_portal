@@ -76,9 +76,70 @@
             </tbody>
           </table>
         </div>
-        <div class="pagination-container">
-          <TailwindPagination :data="laravelData" @pagination-change-page="fetchy" />
+
+        <!-- Professional Pagination -->
+        <div v-if="laravelData.last_page > 1" class="pagination-container">
+          <div class="pagination-wrapper">
+            <!-- Previous Button -->
+            <button @click="fetchy(laravelData.current_page - 1)" :disabled="laravelData.current_page === 1"
+              class="pagination-btn pagination-btn--nav"
+              :class="{ 'pagination-btn--disabled': laravelData.current_page === 1 }">
+              <svg class="pagination-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Previous</span>
+            </button>
+
+            <!-- Page Numbers -->
+            <div class="pagination-numbers">
+              <!-- First page -->
+              <button v-if="laravelData.current_page > 3" @click="fetchy(1)"
+                class="pagination-btn pagination-btn--number"
+                :class="{ 'pagination-btn--active': laravelData.current_page === 1 }">
+                1
+              </button>
+
+              <!-- Ellipsis -->
+              <span v-if="laravelData.current_page > 4" class="pagination-ellipsis">...</span>
+
+              <!-- Dynamic page range -->
+              <button v-for="page in getPageRange()" :key="page" @click="fetchy(page)"
+                class="pagination-btn pagination-btn--number"
+                :class="{ 'pagination-btn--active': laravelData.current_page === page }">
+                {{ page }}
+              </button>
+
+              <!-- Ellipsis -->
+              <span v-if="laravelData.current_page < laravelData.last_page - 3" class="pagination-ellipsis">...</span>
+
+              <!-- Last page -->
+              <button v-if="laravelData.current_page < laravelData.last_page - 2" @click="fetchy(laravelData.last_page)"
+                class="pagination-btn pagination-btn--number"
+                :class="{ 'pagination-btn--active': laravelData.current_page === laravelData.last_page }">
+                {{ laravelData.last_page }}
+              </button>
+            </div>
+
+            <!-- Next Button -->
+            <button @click="fetchy(laravelData.current_page + 1)"
+              :disabled="laravelData.current_page === laravelData.last_page" class="pagination-btn pagination-btn--nav"
+              :class="{ 'pagination-btn--disabled': laravelData.current_page === laravelData.last_page }">
+              <span>Next</span>
+              <svg class="pagination-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Page Info -->
+          <div class="pagination-info">
+            <span class="pagination-text">
+              Showing {{ laravelData.from || 0 }} to {{ laravelData.to || 0 }}
+              of {{ laravelData.total || 0 }} results
+            </span>
+          </div>
         </div>
+
       </main>
     </div>
 
@@ -154,7 +215,6 @@ import { useToast } from "vue-toastification";
 import { computed, onMounted, ref, watch, nextTick } from "vue";
 import DashLayout from "../components/DashLayout.vue";
 import { useStore } from "vuex";
-import { TailwindPagination } from 'laravel-vue-pagination';
 
 // Pagination Stuff
 const laravelData = ref({});
@@ -290,6 +350,23 @@ const handleDelete = () => {
   }
 };
 
+// Pagination helper method
+const getPageRange = () => {
+  const current = laravelData.value.current_page || 1;
+  const last = laravelData.value.last_page || 1;
+  const range = [];
+
+  // Show 2 pages before and after current page
+  const start = Math.max(2, current - 2);
+  const end = Math.min(last - 1, current + 2);
+
+  for (let i = start; i <= end; i++) {
+    range.push(i);
+  }
+
+  return range;
+};
+
 onMounted(() => {
   fetchy();
 });
@@ -301,6 +378,7 @@ function fetchy(page = 1) {
       if (response && response.data) {
         reports.value = response.data.data;
         laravelData.value = response.data;
+        console.log("Laravel Data:", laravelData.value.last_page);
       }
     }).catch((error) => {
       console.log("This is an error", error);
@@ -456,7 +534,7 @@ tbody tr:last-child td {
 }
 
 .link {
-  color: var(--halotel-orange);
+  color: blueviolet;
   text-decoration: none;
   font-weight: 500;
   transition: opacity 0.2s ease;
@@ -738,6 +816,153 @@ footer {
   font-size: 13px;
 }
 
+/* Professional Pagination Styles */
+.pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 24px 0;
+  border-top: 1px solid var(--border);
+}
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.pagination-btn:hover:not(.pagination-btn--disabled) {
+  background: linear-gradient(135deg, var(--halotel-orange), #ea580c);
+  color: white;
+  border-color: var(--halotel-orange);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
+}
+
+.pagination-btn:active:not(.pagination-btn--disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.2);
+}
+
+.pagination-btn--nav {
+  padding: 0 16px;
+  min-width: auto;
+  font-weight: 600;
+}
+
+.pagination-btn--number {
+  min-width: 40px;
+  max-width: 40px;
+}
+
+.pagination-btn--active {
+  background: linear-gradient(135deg, var(--halotel-orange), #ea580c);
+  color: white;
+  border-color: var(--halotel-orange);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
+  transform: scale(1.05);
+}
+
+.pagination-btn--active:hover {
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.3);
+}
+
+.pagination-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: var(--border);
+  color: var(--muted);
+}
+
+.pagination-btn--disabled:hover {
+  transform: none;
+  box-shadow: none;
+  background: var(--border);
+  color: var(--muted);
+}
+
+.pagination-icon {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5;
+}
+
+.pagination-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination-ellipsis {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  user-select: none;
+}
+
+.pagination-info {
+  text-align: center;
+}
+
+.pagination-text {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.025em;
+}
+
+/* Ripple effect for pagination buttons */
+.pagination-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.pagination-btn:active::before {
+  width: 100px;
+  height: 100px;
+}
+
 @media (max-width: 768px) {
   main {
     padding: 24px 16px;
@@ -777,6 +1002,45 @@ footer {
     padding: 20px;
   }
 
+  /* Mobile Pagination Styles */
+  .pagination-container {
+    margin-top: 24px;
+    padding: 16px 0;
+  }
+
+  .pagination-wrapper {
+    gap: 6px;
+  }
+
+  .pagination-btn {
+    min-width: 36px;
+    height: 36px;
+    font-size: 13px;
+  }
+
+  .pagination-btn--nav {
+    padding: 0 12px;
+    font-size: 12px;
+  }
+
+  .pagination-btn--nav span {
+    display: none;
+  }
+
+  .pagination-btn--number {
+    min-width: 36px;
+    max-width: 36px;
+  }
+
+  .pagination-ellipsis {
+    width: 36px;
+    height: 36px;
+    font-size: 12px;
+  }
+
+  .pagination-text {
+    font-size: 12px;
+  }
 }
 
 /* Pagination Container */
